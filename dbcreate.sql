@@ -2,7 +2,7 @@
 -- KBO 야구 일정 웹사이트 (dbcreate.sql)
 -- --------------------------------------------------------
 
--- 1. 데이터베이스 선택
+CREATE DATABASE IF NOT EXISTS team05_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE team05_db;
 
 -- --------------------------------------------------------
@@ -105,7 +105,7 @@ CREATE TABLE match_stat (
   home_score INT NOT NULL DEFAULT 0,
   away_score INT NOT NULL DEFAULT 0,
   attendance INT NOT NULL DEFAULT 0 COMMENT '경기 통계에서 관중 수로 사용',
-  weather VARCHAR(50) COMMENT '경기 당일 날씨 (예: 맑음, 흐림, 비)',
+  weather VARCHAR(50) COMMENT '경기 날씨',
   highlights TEXT,
   mvp_player_name VARCHAR(100) COMMENT '경기 MVP 선수명',
   winning_hitter_name VARCHAR(100) COMMENT '결승타를 친 선수 이름',
@@ -132,6 +132,8 @@ CREATE TABLE match_players (
   putouts INT DEFAULT 0 COMMENT '수비수용: 풋아웃',
   assists INT DEFAULT 0 COMMENT '수비수용: 어시스트 (보살)',
   errors INT DEFAULT 0 COMMENT '수비수용: 실책',
+  stolen_bases INT DEFAULT 0 COMMENT '도루 성공',
+  stolen_base_tries INT DEFAULT 0 COMMENT '도루 시도',
   
   FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE,
   FOREIGN KEY (team_id) REFERENCES teams(id),
