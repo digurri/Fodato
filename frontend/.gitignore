@@ -1,2 +1,23 @@
-node_modules
-node_modules
+# PHP
+*.log
+*.cache
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config (if contains sensitive info)
+# config/database.php
+# 주의: database.php는 실제 배포 시 환경 변수나 별도 설정 파일로 관리 권장
+
+# Temporary files
+*.tmp
+*.temp

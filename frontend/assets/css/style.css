@@ -1,0 +1,1633 @@
+/* 전역 스타일 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 헤더 및 네비게이션 */
+header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.navbar {
+  padding: 0;
+}
+
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.logo a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.nav-menu {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+}
+
+.nav-menu a {
+  color: white;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.nav-menu a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 히어로 섹션 */
+.hero-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 40px 20px;
+  text-align: center;
+  margin-bottom: 30px;
+  border-radius: 10px;
+}
+
+.hero-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+/* 통계 카드 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.stat-card h3 {
+  color: #667eea;
+  margin-bottom: 15px;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #764ba2;
+  display: block;
+  margin: 10px 0;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* 필터 섹션 */
+.filter-section {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.filter-form {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filter-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.filter-form select,
+.filter-form input[type="date"],
+.filter-form input[type="month"] {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  min-width: 180px;
+  width: auto;
+}
+
+.filter-form button,
+.btn-reset {
+  padding: 8px 20px;
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background-color 0.3s;
+}
+
+.filter-form button:hover,
+.btn-reset:hover {
+  background-color: #5568d3;
+}
+
+.btn-reset {
+  background-color: #6c757d;
+}
+
+.btn-reset:hover {
+  background-color: #5a6268;
+}
+
+/* 경기 카드 */
+.matches-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.match-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.match-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.match-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.match-time {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #667eea;
+  text-align: center;
+  margin: 15px 0;
+}
+
+.match-teams {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.team {
+  margin: 10px 0;
+}
+
+.team strong {
+  font-size: 1.1rem;
+}
+
+.score {
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #764ba2;
+}
+
+.vs {
+  font-weight: bold;
+  color: #999;
+  margin: 10px 0;
+}
+
+.match-info {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.match-info p {
+  margin: 5px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* 배지 */
+.sport-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: white;
+  display: inline-block;
+}
+
+.sport-badge.sport-축구 {
+  background-color: #28a745;
+}
+
+.sport-badge.sport-농구 {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.sport-badge.sport-야구 {
+  background-color: #dc3545;
+}
+
+.region-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  background-color: #6c757d;
+  color: white;
+  display: inline-block;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: white;
+  display: inline-block;
+}
+
+.status-badge.status-scheduled {
+  background-color: #17a2b8;
+}
+
+.status-badge.status-ongoing {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.status-badge.status-finished {
+  background-color: #28a745;
+}
+
+.status-badge.status-cancelled {
+  background-color: #dc3545;
+}
+
+/* 버튼 */
+.btn,
+.btn-detail {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #667eea;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn:hover,
+.btn-detail:hover {
+  background-color: #5568d3;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+.btn-primary {
+  background-color: #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+/* 경기 목록 */
+.matches-list {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.date-divider {
+  padding: 15px;
+  background-color: #667eea;
+  color: white;
+  border-radius: 5px;
+  margin: 20px 0 10px 0;
+}
+
+.match-item {
+  display: grid;
+  grid-template-columns: 120px 2fr 1.5fr 120px;
+  gap: 15px;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  align-items: center;
+}
+
+.match-item:last-child {
+  border-bottom: none;
+}
+
+.match-item:hover {
+  background-color: #f8f9fa;
+}
+
+.match-time-col .time {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #667eea;
+}
+
+.match-teams-col {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.team-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.team-name {
+  font-weight: 500;
+}
+
+.match-info-col p {
+  margin: 5px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.attendance {
+  color: #28a745;
+  font-weight: 500;
+}
+
+/* 경기 상세 */
+.match-detail {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.detail-header {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.match-score-section {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+  color: white;
+  margin-bottom: 30px;
+}
+
+.team-section {
+  text-align: center;
+}
+
+.team-section h3 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.score-large {
+  font-size: 4rem;
+  font-weight: bold;
+}
+
+.vs-section {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.match-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.info-card {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.info-card h4 {
+  color: #667eea;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #667eea;
+}
+
+.info-card table {
+  width: 100%;
+}
+
+.info-card table th {
+  text-align: left;
+  padding: 8px 0;
+  color: #666;
+  width: 100px;
+}
+
+.info-card table td {
+  padding: 8px 0;
+}
+
+/* 팀별 성적 비교 */
+.team-stats-comparison {
+  background: #f8f9fa;
+  padding: 25px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+}
+
+.team-stats-comparison h3 {
+  color: #667eea;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #667eea;
+}
+
+.team-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.team-stat-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.team-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.team-stat-card h4 {
+  color: #667eea;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e0e0e0;
+  font-size: 1.2rem;
+}
+
+.stat-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.stat-item:hover {
+  background: #e9ecef;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.stat-value {
+  color: #667eea;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+/* 중계 정보 */
+.broadcasts-section {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+}
+
+.broadcasts-list {
+  margin-top: 15px;
+}
+
+.channel-divider {
+  padding: 10px 15px;
+  background-color: #667eea;
+  color: white;
+  border-radius: 5px;
+  margin: 20px 0 10px 0;
+}
+
+.broadcast-group {
+  margin-bottom: 20px;
+}
+
+.broadcast-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: white;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.broadcast-match-info {
+  flex: 1;
+}
+
+.match-header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.match-teams {
+  font-size: 1.1rem;
+  margin: 10px 0;
+}
+
+.match-location {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.broadcast-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.broadcast-link {
+  color: #667eea;
+  text-decoration: none;
+}
+
+/* 경기장 카드 */
+.stadiums-grid,
+.sports-grid,
+.regions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.stadium-card,
+.sport-card,
+.region-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.stadium-card:hover,
+.sport-card:hover,
+.region-card:hover {
+  transform: translateY(-5px);
+}
+
+.stadium-card h3,
+.sport-card h3,
+.region-card h3 {
+  color: #667eea;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #667eea;
+}
+
+.stadium-badges {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.stadium-info p,
+.sport-stats,
+.region-stats {
+  margin: 10px 0;
+  color: #666;
+}
+
+.sport-stats,
+.region-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 5px;
+}
+
+.stat-label {
+  color: #666;
+}
+
+.stat-value {
+  font-weight: bold;
+  color: #667eea;
+}
+
+/* 통계 테이블 */
+.statistics-container {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.stat-section {
+  margin-bottom: 40px;
+}
+
+.stat-section h3 {
+  color: #667eea;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #667eea;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.stat-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.stat-table thead {
+  background-color: #667eea;
+  color: white;
+}
+
+.stat-table th,
+.stat-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.stat-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* 통계 하이라이트 스타일 */
+.stat-highlight {
+  color: #667eea;
+  font-size: 1.1em;
+}
+
+.stat-type-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.stat-max {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.stat-min {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.total-row {
+  background-color: #fff3cd;
+  font-weight: bold;
+}
+
+.rank-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  background-color: #667eea;
+  color: white;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.rank-badge.rank-1 {
+  background-color: #ffd700;
+  color: #333;
+}
+
+.rank-badge.rank-2 {
+  background-color: #c0c0c0;
+  color: #333;
+}
+
+.rank-badge.rank-3 {
+  background-color: #cd7f32;
+}
+
+/* 액션 버튼 */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* 푸터 */
+footer {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  margin-top: 40px;
+}
+
+/* 유틸리티 */
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-size: 1.1rem;
+}
+
+/* 테이블 내 데이터 없음 표시 */
+table .no-data {
+  padding: 20px;
+  font-style: italic;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .nav-menu {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .match-item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .match-score-section {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .score-large {
+    font-size: 3rem;
+  }
+
+  .filter-form {
+    flex-direction: column;
+  }
+
+  .filter-form label {
+    width: 100%;
+  }
+
+  .broadcast-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+}
+
+/* 팀 관련 스타일 - 경기장과 동일한 스타일 사용 */
+
+.team-detail {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.team-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+/* 선수 관련 스타일 */
+.players-section {
+  margin-top: 30px;
+}
+
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.player-card {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.player-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.back-number {
+  font-weight: bold;
+  color: #667eea;
+  font-size: 1.1rem;
+}
+
+.position-badge {
+  background: #667eea;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.player-card h4 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.player-info {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.player-info p {
+  margin: 5px 0;
+}
+
+/* 선수 조회 테이블 스타일 */
+.players-table-container {
+  overflow-x: auto;
+  margin-top: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.players-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.players-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.players-table th {
+  padding: 15px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.players-table th:first-child {
+  border-radius: 10px 0 0 0;
+}
+
+.players-table th:last-child {
+  border-radius: 0 10px 0 0;
+}
+
+.players-table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: all 0.2s;
+}
+
+.players-table tbody tr:hover {
+  background-color: #f8f9ff;
+  transform: scale(1.01);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.players-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.players-table td {
+  padding: 12px;
+  color: #333;
+}
+
+.players-table td strong {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.players-table td .position-badge {
+  display: inline-block;
+  background: #667eea;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.search-result {
+  margin: 15px 0;
+  color: #667eea;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* 포지션 지표 스타일 */
+.position-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 0.95rem;
+  color: #667eea;
+  font-weight: 700;
+}
+
+.no-stat {
+  color: #adb5bd;
+  font-style: italic;
+}
+
+/* 댓글 관련 스타일 */
+.comments-section {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 35px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-top: 30px;
+  border: 1px solid #e9ecef;
+}
+
+.comments-section h4 {
+  color: #667eea;
+  margin-bottom: 25px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  border-bottom: 3px solid #667eea;
+  padding-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.comments-section h4::before {
+  content: "💬";
+  font-size: 1.4rem;
+}
+
+.comment-form {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 35px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  border: 2px solid #e9ecef;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.comment-form::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px 15px 0 0;
+}
+
+.comment-form:hover {
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.25);
+  transform: translateY(-3px);
+  border-color: #667eea;
+}
+
+.form-group {
+  margin-bottom: 22px;
+  position: relative;
+}
+
+.form-group:last-of-type {
+  margin-bottom: 25px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 12px;
+  color: #495057;
+  font-weight: 700;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.3px;
+}
+
+.form-group label::before {
+  content: "📝";
+  font-size: 1.2rem;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.1));
+}
+
+.form-group:first-of-type label::before {
+  content: "👤";
+}
+
+.form-group input[type="text"],
+.form-group textarea,
+.form-group select {
+  width: 100% !important;
+  padding: 16px 20px !important;
+  border: 2px solid #dee2e6 !important;
+  border-radius: 12px !important;
+  font-size: 1rem !important;
+  font-family: inherit !important;
+  transition: all 0.3s ease !important;
+  background: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  color: #212529 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+}
+
+.form-group input[type="text"] {
+  padding-left: 50px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2.5'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: 18px center !important;
+  background-size: 20px !important;
+  height: 52px !important;
+  line-height: 1.5 !important;
+}
+
+.form-group textarea {
+  padding: 16px 20px 16px 50px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2.5'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3Cline x1='16' y1='13' x2='8' y2='13'/%3E%3Cline x1='16' y1='17' x2='8' y2='17'/%3E%3Cpolyline points='10 9 9 9 8 9'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: 18px 18px !important;
+  background-size: 20px !important;
+  resize: vertical !important;
+  min-height: 140px !important;
+  line-height: 1.8 !important;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 5px rgba(102, 126, 234, 0.15),
+    0 6px 20px rgba(102, 126, 234, 0.12);
+  transform: translateY(-3px);
+  background-color: #fafbff;
+}
+
+.form-group input[type="text"]:not(:focus):hover,
+.form-group textarea:not(:focus):hover,
+.form-group select:hover {
+  border-color: #adb5bd;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* Placeholder 스타일 개선 - 강화된 스타일 */
+.form-group input[type="text"]::placeholder,
+.form-group textarea::placeholder {
+  color: #9ca3af !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  opacity: 0.85 !important;
+  letter-spacing: 0.3px !important;
+  transition: opacity 0.3s ease, color 0.3s ease !important;
+  font-size: 0.95rem !important;
+}
+
+.form-group input[type="text"]:focus::placeholder,
+.form-group textarea:focus::placeholder {
+  color: #cbd5e1 !important;
+  opacity: 0.5 !important;
+}
+
+.form-group input[type="text"]:hover::placeholder,
+.form-group textarea:hover::placeholder {
+  opacity: 0.7 !important;
+}
+
+.form-group input[type="text"]:not(:placeholder-shown),
+.form-group textarea:not(:placeholder-shown) {
+  background-color: #ffffff;
+}
+
+.form-group input[type="text"]:focus:not(:placeholder-shown),
+.form-group textarea:focus:not(:placeholder-shown) {
+  background-color: #fafbff;
+}
+
+.comments-list {
+  margin-top: 25px;
+}
+
+.comment-item {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 18px;
+  border-left: 5px solid #667eea;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.comment-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+}
+
+.comment-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+/* 내 댓글 스타일 */
+.comment-item.my-comment {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%);
+  border-left: 5px solid #667eea;
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.15);
+}
+
+.comment-item.my-comment::before {
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  width: 5px;
+}
+
+.comment-item.my-comment:hover {
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.25);
+}
+
+/* 다른 사용자 댓글 스타일 */
+.comment-item.other-comment {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-left: 5px solid #dee2e6;
+  opacity: 0.95;
+}
+
+.comment-item.other-comment::before {
+  background: linear-gradient(180deg, #dee2e6 0%, #ced4da 100%);
+  width: 5px;
+}
+
+.comment-item.other-comment:hover {
+  opacity: 1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.comment-author-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.my-comment-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.comment-nickname {
+  color: #667eea;
+  font-weight: 700;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comment-nickname::before {
+  content: "👤";
+  font-size: 1rem;
+}
+
+.comment-date {
+  color: #6c757d;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.comment-date::before {
+  content: "🕒";
+  font-size: 0.85rem;
+}
+
+.comment-content {
+  color: #212529;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 1rem;
+  padding: 10px 0;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-edit {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3);
+}
+
+.btn-edit:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+}
+
+.btn-edit:active {
+  transform: translateY(0);
+}
+
+.btn-delete {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  box-shadow: 0 2px 5px rgba(220, 53, 69, 0.3);
+}
+
+.btn-delete:hover {
+  background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
+}
+
+.btn-delete:active {
+  transform: translateY(0);
+}
+
+.delete-comment-form {
+  display: inline;
+}
+
+.edited-badge {
+  color: #6c757d;
+  font-size: 0.8rem;
+  font-weight: normal;
+  font-style: italic;
+}
+
+.comment-edit-form {
+  margin-top: 15px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border: 2px solid #667eea;
+}
+
+.comment-edit-form .form-group {
+  margin-bottom: 15px;
+}
+
+.comment-edit-form .form-group label {
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.comment-edit-form .form-group input[type="text"],
+.comment-edit-form .form-group textarea {
+  width: 100%;
+  padding: 10px 15px;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.3s;
+  background: white;
+}
+
+.comment-edit-form .form-group input[type="text"]:focus,
+.comment-edit-form .form-group textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.comment-edit-form .form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.edit-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-save {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  box-shadow: 0 2px 5px rgba(40, 167, 69, 0.3);
+}
+
+.btn-save:hover {
+  background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4);
+}
+
+.btn-cancel {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  box-shadow: 0 2px 5px rgba(108, 117, 125, 0.3);
+}
+
+.btn-cancel:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(108, 117, 125, 0.4);
+}
+
+.comment-form .btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 14px 35px;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.comment-form .btn-primary::before {
+  content: "✍️";
+  margin-right: 8px;
+  font-size: 1rem;
+}
+
+.comment-form .btn-primary::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.comment-form .btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.comment-form .btn-primary:hover::after {
+  width: 300px;
+  height: 300px;
+}
+
+.comment-form .btn-primary:active {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* 댓글이 없을 때 스타일 */
+.comments-list .no-data {
+  text-align: center;
+  padding: 50px 20px;
+  color: #6c757d;
+  font-size: 1.1rem;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border: 2px dashed #dee2e6;
+}
+
+/* Select 스타일 개선 */
+.form-group select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 16px center !important;
+  padding-right: 40px !important;
+  cursor: pointer !important;
+  height: 52px !important;
+  line-height: 1.5 !important;
+}
+
+.form-group select option {
+  padding: 10px !important;
+  background: white !important;
+}
+
+.form-group select optgroup {
+  font-weight: bold !important;
+  color: #667eea !important;
+  padding: 8px !important;
+  background: #f8f9fa !important;
+}
+
+/* 응원 배지 스타일 */
+.supporting-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+.team-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+}
+
+.player-badge {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  box-shadow: 0 2px 6px rgba(245, 87, 108, 0.3);
+}
+
+.comments-list .no-data::before {
+  content: "💭";
+  display: block;
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+/* 반응형 - 댓글 및 팀 */
+@media (max-width: 768px) {
+  .teams-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .players-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .comment-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .team-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
