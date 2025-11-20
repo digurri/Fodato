@@ -8,8 +8,8 @@ USE team05_db;
 -- --------------------------------------------------------
 -- 인덱스 삭제
 -- --------------------------------------------------------
-DROP INDEX IF EXISTS matches_date_idx ON matches(date);
-DROP INDEX IF EXISTS matchstat_match_id_idx ON match_stat(match_id);
+DROP INDEX IF EXISTS matches_date_idx ON matches;
+DROP INDEX IF EXISTS matchstat_match_id_idx ON match_stat;
 DROP INDEX IF EXISTS matches_stadium_date_idx ON matches;
 DROP INDEX IF EXISTS matches_league_date_idx ON matches;
 
