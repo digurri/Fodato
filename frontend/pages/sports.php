@@ -4,7 +4,7 @@ $db = getDB();
 
 $pageTitle = "KBO 야구";
 
-// 야구 경기 일정만 표시
+// 야구 경기 일정만 표시 (sports 테이블 없이 직접 조회)
 $query = "
     SELECT 
         m.*,
@@ -16,13 +16,11 @@ $query = "
         ms.away_score,
         ms.attendance
     FROM matches m
-    JOIN sports sp ON m.sport_id = sp.id
     JOIN stadiums s ON m.stadium_id = s.id
     JOIN regions r ON s.region_id = r.id
     JOIN teams ht ON m.home_team_id = ht.id
     JOIN teams at ON m.away_team_id = at.id
     LEFT JOIN match_stat ms ON m.id = ms.match_id
-    WHERE sp.name = '야구'
     ORDER BY m.match_date DESC, m.match_time
 ";
 
@@ -82,11 +80,7 @@ include '../includes/header.php';
             </div>
         <?php endif; ?>
     </div>
-    
-    <?php
-}
 
-include '../includes/footer.php';
-?>
+<?php include '../includes/footer.php'; ?>
 
 

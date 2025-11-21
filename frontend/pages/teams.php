@@ -6,46 +6,44 @@ $pageTitle = "KBO 팀 목록";
 
 $teamFilter = $_GET['team'] ?? '';
 
-// 팀 목록 가져오기 (야구만)
-$query = "
-    SELECT 
-        t.*,
-        r.name as region_name,
-        COUNT(DISTINCT p.id) as player_count,
-        COUNT(DISTINCT m.id) as match_count
-    FROM teams t
-    JOIN regions r ON t.region_id = r.id
-    JOIN sports sp ON t.sport_id = sp.id
-    LEFT JOIN players p ON t.id = p.team_id
-    LEFT JOIN matches m ON (t.id = m.home_team_id OR t.id = m.away_team_id)
-    WHERE sp.name = '야구'
-";
+// 백엔드 API를 통해 팀 목록 가져오기 (list.php 사용)
+$teams = [];
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'];
+// frontend/pages/에서 backend/로 가려면 3단계 위로 올라가야 함
+$basePath = dirname(dirname(dirname($_SERVER['PHP_SELF'])));
+$apiUrl = $protocol . '://' . $host . $basePath . '/backend/api/teams/list.php';
 
-$params = [];
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $apiUrl);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+$apiResponse = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$curlError = curl_error($ch);
+curl_close($ch);
 
-if ($teamFilter) {
-    $query .= " AND t.id = :team";
-    $params[':team'] = $teamFilter;
+if ($apiResponse !== false && $httpCode == 200) {
+    $apiData = json_decode($apiResponse, true);
+    if (isset($apiData['data']) && is_array($apiData['data'])) {
+        $allTeams = $apiData['data'];
+        
+        // 팀 필터링 적용
+        if ($teamFilter) {
+            $teams = array_filter($allTeams, function($team) use ($teamFilter) {
+                return ($team['team_id'] ?? '') == $teamFilter;
+            });
+        } else {
+            $teams = $allTeams;
+        }
+    }
+} else {
+    // 디버깅: API 호출 실패 시 에러 정보 출력 (개발 중에만)
+    error_log("Teams API 호출 실패 - URL: $apiUrl, HTTP Code: $httpCode, cURL Error: $curlError, Response: " . substr($apiResponse, 0, 200));
 }
 
-$query .= " GROUP BY t.id, t.name, t.sport_id, t.region_id, t.logo_url, t.created_at, r.name ORDER BY t.name";
-
-$stmt = $db->prepare($query);
-$stmt->execute($params);
-$teams = $stmt->fetchAll();
-
-// 선택된 팀의 선수 목록 가져오기
-$selectedTeamPlayers = [];
-if ($teamFilter) {
-    $playersQuery = "
-        SELECT * FROM players
-        WHERE team_id = :team_id
-        ORDER BY position, back_number
-    ";
-    $playersStmt = $db->prepare($playersQuery);
-    $playersStmt->execute([':team_id' => $teamFilter]);
-    $selectedTeamPlayers = $playersStmt->fetchAll();
-}
+// 필터링 드롭다운용 전체 팀 목록 (필터링 전)
+$allTeamsForDropdown = $allTeams ?? [];
 
 include '../includes/header.php';
 ?>
@@ -58,10 +56,10 @@ include '../includes/header.php';
             팀 선택:
             <select name="team" onchange="this.form.submit()">
                 <option value="">전체 팀</option>
-                <?php foreach ($teams as $team): ?>
-                    <option value="<?php echo $team['id']; ?>"
-                        <?php echo $teamFilter == $team['id'] ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($team['name']); ?>
+                <?php foreach ($allTeamsForDropdown as $team): ?>
+                    <option value="<?php echo $team['team_id'] ?? ''; ?>"
+                        <?php echo $teamFilter == ($team['team_id'] ?? '') ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($team['name'] ?? ''); ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -75,53 +73,36 @@ include '../includes/header.php';
 <div class="teams-section">
     <?php if (empty($teams)): ?>
         <p class="no-data">데이터 없음</p>
+        <?php if (isset($_GET['debug'])): ?>
+            <div style="background: #f8f9fa; padding: 15px; border: 1px solid #ddd; margin: 20px 0; border-radius: 5px;">
+                <h4>디버그 정보</h4>
+                <p><strong>API URL:</strong> <?php echo htmlspecialchars($apiUrl ?? 'N/A'); ?></p>
+                <p><strong>HTTP Code:</strong> <?php echo htmlspecialchars($httpCode ?? 'N/A'); ?></p>
+                <p><strong>cURL Error:</strong> <?php echo htmlspecialchars($curlError ?? 'None'); ?></p>
+                <p><strong>Response:</strong></p>
+                <pre style="background: #fff; padding: 10px; border: 1px solid #ccc; overflow-x: auto; max-height: 300px;"><?php echo htmlspecialchars(substr($apiResponse ?? '', 0, 1000)); ?></pre>
+                <p><strong>Teams Array:</strong></p>
+                <pre style="background: #fff; padding: 10px; border: 1px solid #ccc; overflow-x: auto;"><?php print_r($teams); ?></pre>
+            </div>
+        <?php endif; ?>
     <?php else: ?>
         <div class="stadiums-grid">
             <?php foreach ($teams as $team): ?>
                 <div class="stadium-card">
-                    <h3><?php echo htmlspecialchars($team['name']); ?></h3>
+                    <h3><?php echo htmlspecialchars($team['name'] ?? ''); ?></h3>
                     <div class="stadium-badges">
-                        <span class="region-badge"><?php echo htmlspecialchars($team['region_name']); ?></span>
+                        <span class="region-badge"><?php echo htmlspecialchars($team['region'] ?? ''); ?></span>
                     </div>
                     <div class="stadium-info">
-                        <p><strong>선수 수:</strong> <?php echo number_format($team['player_count']); ?>명</p>
-                        <p><strong>경기 수:</strong> <?php echo number_format($team['match_count']); ?>경기</p>
+                        <p><strong>선수 수:</strong> <?php echo number_format($team['player_count'] ?? 0); ?>명</p>
+                        <p><strong>경기 수:</strong> <?php echo number_format($team['match_count'] ?? 0); ?>경기</p>
                     </div>
-                    <a href="team_detail.php?id=<?php echo $team['id']; ?>" class="btn-detail">팀 상세보기</a>
+                    <a href="team_detail.php?id=<?php echo $team['team_id'] ?? ''; ?>" class="btn-detail">팀 상세보기</a>
                 </div>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
 </div>
-
-<?php if ($teamFilter && !empty($selectedTeamPlayers)): ?>
-<div class="players-section">
-    <h3><?php 
-        $selectedTeam = array_filter($teams, function($t) use ($teamFilter) { return $t['id'] == $teamFilter; });
-        $selectedTeam = reset($selectedTeam);
-        echo htmlspecialchars($selectedTeam['name']); 
-    ?> 선수 명단 (<?php echo count($selectedTeamPlayers); ?>명)</h3>
-    <div class="players-grid">
-        <?php foreach ($selectedTeamPlayers as $player): ?>
-            <div class="player-card">
-                <div class="player-header">
-                    <span class="back-number"><?php echo $player['back_number'] ? '#' . $player['back_number'] : '-'; ?></span>
-                    <span class="position-badge"><?php echo htmlspecialchars($player['position'] ?? '-'); ?></span>
-                </div>
-                <h4><?php echo htmlspecialchars($player['name']); ?></h4>
-                <div class="player-info">
-                    <?php if ($player['birth_date']): ?>
-                        <p>생년월일: <?php echo date('Y-m-d', strtotime($player['birth_date'])); ?></p>
-                    <?php endif; ?>
-                    <?php if ($player['height'] && $player['weight']): ?>
-                        <p>신체: <?php echo $player['height']; ?>cm / <?php echo $player['weight']; ?>kg</p>
-                    <?php endif; ?>
-                </div>
-            </div>
-        <?php endforeach; ?>
-    </div>
-</div>
-<?php endif; ?>
 
 <?php include '../includes/footer.php'; ?>
 

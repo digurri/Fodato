@@ -8,53 +8,62 @@ $pageTitle = "KBO 야구 경기장 정보";
 $stadiumId = $_GET['id'] ?? null;
 
 if ($stadiumId) {
-    // 특정 경기장 상세 정보
-    $query = "
-        SELECT 
-            s.*,
-            r.name as region_name,
-            sp.name as sport_name,
-            COUNT(m.id) as total_matches,
-            MAX(ms.attendance) as max_attendance,
-            AVG(ms.attendance) as avg_attendance,
-            SUM(ms.attendance) as total_attendance
-        FROM stadiums s
-        JOIN regions r ON s.region_id = r.id
-        JOIN sports sp ON s.sport_id = sp.id
-        LEFT JOIN matches m ON s.id = m.stadium_id
-        LEFT JOIN match_stat ms ON m.id = ms.match_id
-        WHERE s.id = :id
-        GROUP BY s.id
-    ";
+    // 백엔드 API를 통해 경기장 상세 정보 가져오기 (detail.php 사용)
+    $stadiumData = null;
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    // frontend/pages/에서 backend/로 가려면 3단계 위로 올라가야 함
+    $basePath = dirname(dirname(dirname($_SERVER['PHP_SELF'])));
+    $detailApiUrl = $protocol . '://' . $host . $basePath . '/backend/api/stadiums/detail.php?id=' . urlencode($stadiumId);
     
-    $stmt = $db->prepare($query);
-    $stmt->execute([':id' => $stadiumId]);
-    $stadium = $stmt->fetch();
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $detailApiUrl);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    $detailResponse = curl_exec($ch);
+    $detailHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
     
-    if (!$stadium) {
+    if ($detailResponse !== false && $detailHttpCode == 200) {
+        $detailData = json_decode($detailResponse, true);
+        if (isset($detailData['stadium']) && $detailData['stadium'] !== null) {
+            $stadiumData = $detailData['stadium'];
+        }
+    }
+    
+    if (!$stadiumData) {
         header('Location: stadiums.php');
         exit;
     }
     
-    // 이 경기장에서 열린 경기 목록
-    $matchesQuery = "
-        SELECT 
-            m.*,
-            ht.name as home_team,
-            at.name as away_team,
-            ms.attendance
-        FROM matches m
-        JOIN teams ht ON m.home_team_id = ht.id
-        JOIN teams at ON m.away_team_id = at.id
-        LEFT JOIN match_stat ms ON m.id = ms.match_id
-        WHERE m.stadium_id = :stadium_id
-        ORDER BY m.match_date DESC, m.match_time DESC
-        LIMIT 10
-    ";
+    // API 응답을 기존 코드와 호환되도록 변환
+    $stadium = [
+        'id' => $stadiumId,
+        'name' => $stadiumData['name'] ?? '',
+        'region_name' => $stadiumData['region'] ?? '',
+        'location' => $stadiumData['location'] ?? '',
+        'address' => $stadiumData['address'] ?? '', // API에 없을 수 있음
+        'capacity' => $stadiumData['capacity'] ?? 0,
+        'total_matches' => $stadiumData['total_matches'] ?? 0,
+        'avg_attendance' => $stadiumData['avg_spectators'] ?? null,
+        'max_attendance' => null, // API에 없음
+        'total_attendance' => null, // API에 없음
+    ];
     
-    $matchesStmt = $db->prepare($matchesQuery);
-    $matchesStmt->execute([':stadium_id' => $stadiumId]);
-    $stadiumMatches = $matchesStmt->fetchAll();
+    // recent_match 정보가 있으면 경기 목록으로 변환
+    $stadiumMatches = [];
+    if (isset($stadiumData['recent_match']) && $stadiumData['recent_match'] !== null) {
+        $recentMatch = $stadiumData['recent_match'];
+        $stadiumMatches[] = [
+            'id' => $recentMatch['id'] ?? null,
+            'match_date' => $recentMatch['date'] ?? '',
+            'match_time' => $recentMatch['time'] ?? '',
+            'status' => $recentMatch['state'] ?? '',
+            'home_team' => explode(' vs ', $recentMatch['teams'] ?? '')[0] ?? '',
+            'away_team' => explode(' vs ', $recentMatch['teams'] ?? '')[1] ?? '',
+            'attendance' => $recentMatch['spectators'] ?? null,
+        ];
+    }
     
     include '../includes/header.php';
     ?>
@@ -68,20 +77,18 @@ if ($stadiumId) {
                 <table>
                     <tr>
                         <th>지역</th>
-                        <td><?php echo htmlspecialchars($stadium['region_name']); ?></td>
-                    </tr>
-                    <tr>
-                        <th>종목</th>
-                        <td><?php echo htmlspecialchars($stadium['sport_name']); ?></td>
+                        <td><?php echo htmlspecialchars($stadium['region_name'] ?? ''); ?></td>
                     </tr>
                     <tr>
                         <th>위치</th>
-                        <td><?php echo htmlspecialchars($stadium['location']); ?></td>
+                        <td><?php echo htmlspecialchars($stadium['location'] ?? ''); ?></td>
                     </tr>
+                    <?php if (isset($stadium['address']) && $stadium['address']): ?>
                     <tr>
                         <th>주소</th>
                         <td><?php echo htmlspecialchars($stadium['address']); ?></td>
                     </tr>
+                    <?php endif; ?>
                     <tr>
                         <th>수용 인원</th>
                         <td><?php echo number_format($stadium['capacity']); ?>명</td>
@@ -96,16 +103,10 @@ if ($stadiumId) {
                         <th>총 경기 수</th>
                         <td><?php echo number_format($stadium['total_matches']); ?>경기</td>
                     </tr>
-                    <?php if ($stadium['avg_attendance']): ?>
+                    <?php if (isset($stadium['avg_attendance']) && $stadium['avg_attendance']): ?>
                     <tr>
                         <th>평균 관중 수</th>
                         <td><?php echo number_format($stadium['avg_attendance'], 0); ?>명</td>
-                    </tr>
-                    <?php endif; ?>
-                    <?php if ($stadium['total_attendance']): ?>
-                    <tr>
-                        <th>총 관중 수</th>
-                        <td><?php echo number_format($stadium['total_attendance']); ?>명</td>
                     </tr>
                     <?php endif; ?>
                 </table>
@@ -121,25 +122,39 @@ if ($stadiumId) {
             <?php else: ?>
                 <div class="matches-list">
                     <?php foreach ($stadiumMatches as $match): 
-                        $status = getMatchStatus($match['match_date'], $match['match_time']);
+                        if (isset($match['match_date']) && isset($match['match_time'])) {
+                            $status = getMatchStatus($match['match_date'], $match['match_time']);
+                        } else {
+                            $status = ['class' => '', 'label' => $match['status'] ?? ''];
+                        }
                     ?>
                         <div class="match-item">
                             <div class="match-date">
-                                <?php echo date('Y-m-d H:i', strtotime($match['match_date'] . ' ' . $match['match_time'])); ?>
-                                <span class="status-badge <?php echo $status['class']; ?>"><?php echo $status['label']; ?></span>
+                                <?php if (isset($match['match_date']) && isset($match['match_time'])): ?>
+                                    <?php echo date('Y-m-d H:i', strtotime($match['match_date'] . ' ' . $match['match_time'])); ?>
+                                <?php else: ?>
+                                    <?php echo htmlspecialchars($match['match_date'] ?? ''); ?>
+                                <?php endif; ?>
+                                <?php if (isset($status['class']) && $status['class']): ?>
+                                    <span class="status-badge <?php echo $status['class']; ?>"><?php echo $status['label']; ?></span>
+                                <?php else: ?>
+                                    <span class="status-badge"><?php echo htmlspecialchars($match['status'] ?? ''); ?></span>
+                                <?php endif; ?>
                             </div>
                             <div class="match-teams">
-                                <?php echo htmlspecialchars($match['home_team']); ?> vs <?php echo htmlspecialchars($match['away_team']); ?>
+                                <?php echo htmlspecialchars($match['home_team'] ?? ''); ?> vs <?php echo htmlspecialchars($match['away_team'] ?? ''); ?>
                             </div>
                             <div class="attendance">
                                 관중: 
-                                <?php if ($match['attendance']): ?>
+                                <?php if (isset($match['attendance']) && $match['attendance']): ?>
                                     <?php echo number_format($match['attendance']); ?>명
                                 <?php else: ?>
                                     <span style="color: #999; font-style: italic;">정보 없음</span>
                                 <?php endif; ?>
                             </div>
-                            <a href="match_detail.php?id=<?php echo $match['id']; ?>" class="btn-detail">상세보기</a>
+                            <?php if (isset($match['id']) && $match['id']): ?>
+                                <a href="match_detail.php?id=<?php echo $match['id']; ?>" class="btn-detail">상세보기</a>
+                            <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -153,38 +168,37 @@ if ($stadiumId) {
     
     <?php
 } else {
-    // 경기장 목록 (야구만)
+    // 백엔드 API를 통해 경기장 목록 가져오기 (search.php 사용)
     $regionFilter = $_GET['region'] ?? '';
+    $stadiums = [];
     
-    $query = "
-        SELECT 
-            s.*,
-            r.name as region_name,
-            sp.name as sport_name,
-            COUNT(m.id) as total_matches,
-            MAX(ms.attendance) as max_attendance,
-            AVG(ms.attendance) as avg_attendance
-        FROM stadiums s
-        JOIN regions r ON s.region_id = r.id
-        JOIN sports sp ON s.sport_id = sp.id
-        LEFT JOIN matches m ON s.id = m.stadium_id
-        LEFT JOIN match_stat ms ON m.id = ms.match_id
-        WHERE sp.name = '야구'
-    ";
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    // frontend/pages/에서 backend/로 가려면 3단계 위로 올라가야 함
+    $basePath = dirname(dirname(dirname($_SERVER['PHP_SELF'])));
+    $searchApiUrl = $protocol . '://' . $host . $basePath . '/backend/api/stadiums/search.php';
     
-    $params = [];
-    
+    // region_id 파라미터 추가
     if ($regionFilter) {
-        $query .= " AND s.region_id = :region";
-        $params[':region'] = $regionFilter;
+        $searchApiUrl .= '?region_id=' . urlencode($regionFilter);
     }
     
-    $query .= " GROUP BY s.id ORDER BY r.name, s.name";
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $searchApiUrl);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    $searchResponse = curl_exec($ch);
+    $searchHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
     
-    $stmt = $db->prepare($query);
-    $stmt->execute($params);
-    $stadiums = $stmt->fetchAll();
+    if ($searchResponse !== false && $searchHttpCode == 200) {
+        $searchData = json_decode($searchResponse, true);
+        if (isset($searchData['stadiums']) && is_array($searchData['stadiums'])) {
+            $stadiums = $searchData['stadiums'];
+        }
+    }
     
+    // 지역 목록은 DB에서 가져오기 (필터링 드롭다운용)
     $regions = $db->query("SELECT * FROM regions ORDER BY name")->fetchAll();
     
     include '../includes/header.php';
@@ -220,19 +234,16 @@ if ($stadiumId) {
         <?php else: ?>
             <?php foreach ($stadiums as $stadium): ?>
                 <div class="stadium-card">
-                    <h3><?php echo htmlspecialchars($stadium['name']); ?></h3>
+                    <h3><?php echo htmlspecialchars($stadium['name'] ?? ''); ?></h3>
                     <div class="stadium-badges">
-                        <span class="region-badge"><?php echo htmlspecialchars($stadium['region_name']); ?></span>
+                        <span class="region-badge"><?php echo htmlspecialchars($stadium['region'] ?? ''); ?></span>
                     </div>
                     <div class="stadium-info">
-                        <p><strong>위치:</strong> <?php echo htmlspecialchars($stadium['location']); ?></p>
-                        <p><strong>수용 인원:</strong> <?php echo number_format($stadium['capacity']); ?>명</p>
-                        <p><strong>총 경기:</strong> <?php echo number_format($stadium['total_matches']); ?>경기</p>
-                        <?php if ($stadium['avg_attendance']): ?>
-                            <p><strong>평균 관중:</strong> <?php echo number_format($stadium['avg_attendance'], 0); ?>명</p>
-                        <?php endif; ?>
+                        <p><strong>위치:</strong> <?php echo htmlspecialchars($stadium['location'] ?? ''); ?></p>
+                        <p><strong>수용 인원:</strong> <?php echo number_format($stadium['capacity'] ?? 0); ?>명</p>
+                        <p><strong>총 경기:</strong> <?php echo number_format($stadium['total_matches'] ?? 0); ?>경기</p>
                     </div>
-                    <a href="stadiums.php?id=<?php echo $stadium['id']; ?>" class="btn-detail">상세보기</a>
+                    <a href="stadiums.php?id=<?php echo $stadium['id'] ?? ''; ?>" class="btn-detail">상세보기</a>
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>

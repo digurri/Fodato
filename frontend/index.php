@@ -1,5 +1,5 @@
 <?php
-define('BASE_URL', '/Fodato/frontend/');
-header('Location: ' . BASE_URL . 'pages/index.php');
+// 루트 index.php - frontend/pages/index.php로 리다이렉트
+header('Location: frontend/pages/index.php');
 exit;
 ?>
