@@ -146,30 +146,11 @@ include '../includes/header.php';
                         <span class="region-badge"><?php echo htmlspecialchars($match['region_name']); ?></span>
                     <?php endif; ?>
                     <?php 
-                    // status 필드가 있으면 사용, 없으면 getMatchStatus 함수 사용
-                    if (isset($match['status'])) {
-                        $statusLabel = '';
-                        $statusClass = '';
-                        switch($match['status']) {
-                            case 'finished':
-                            case '완료':
-                                $statusLabel = '완료';
-                                $statusClass = 'status-finished';
-                                break;
-                            case 'scheduled':
-                            case '예정':
-                                $statusLabel = '예정';
-                                $statusClass = 'status-scheduled';
-                                break;
-                            default:
-                                $statusLabel = $match['status'];
-                                $statusClass = 'status-scheduled';
-                        }
-                    } else {
-                        $status = getMatchStatus($match['match_date'], $match['match_time']);
-                        $statusLabel = $status['label'];
-                        $statusClass = $status['class'];
-                    }
+                    // 현재 날짜/시간 기준으로 상태 계산 (API의 status 값은 무시하고 항상 재계산)
+                    date_default_timezone_set('Asia/Seoul'); // 타임존 설정
+                    $status = getMatchStatus($match['match_date'], $match['match_time']);
+                    $statusLabel = $status['label'];
+                    $statusClass = $status['class'];
                     ?>
                     <span class="status-badge <?php echo $statusClass; ?>"><?php echo htmlspecialchars($statusLabel); ?></span>
                 </div>
