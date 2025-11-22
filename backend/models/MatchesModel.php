@@ -113,5 +113,22 @@ class MatchesModel {
         
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    // [홈] 오늘 경기 지역별 통계 (ROLLUP 적용)
+    public function getTodayRegionStats() {
+        $query = "SELECT 
+                    IFNULL(r.name, 'Total') AS region_name, 
+                    COUNT(m.id) AS match_count
+                  FROM matches m
+                  JOIN stadiums s ON m.stadium_id = s.id
+                  JOIN regions r ON s.region_id = r.id
+                  WHERE m.date = CURDATE()  -- 오직 오늘 날짜만!
+                  GROUP BY r.name WITH ROLLUP";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+
+        return $stmt;
+    }
 }
 ?>
