@@ -1,48 +1,83 @@
+<!-- 메인 페이지 -->
+
 <?php
 require_once '../config/database.php';
-require_once '../includes/functions.php';
+require_once '../helpers/match_helper.php';
+require_once '../helpers/api_helper.php';
 $db = getDB();
 
 $pageTitle = "홈";
 
-// 백엔드 API를 통해 오늘의 경기 가져오기 (today.php 사용)
 $todayMatches = [];
-$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-$host = $_SERVER['HTTP_HOST'];
-$basePath = dirname(dirname($_SERVER['PHP_SELF']));
-$apiUrl = $protocol . '://' . $host . $basePath . '/backend/api/matches/today.php';
+$apiBaseUrl = getApiBaseUrl(3);
+$result = callApi($apiBaseUrl . '/matches/today.php', 10);
 
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $apiUrl);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-$apiResponse = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-if ($apiResponse !== false && $httpCode == 200) {
-    $apiData = json_decode($apiResponse, true);
+if ($result['success']) {
+    $apiData = json_decode($result['response'], true);
     if (isset($apiData['data']) && is_array($apiData['data'])) {
         $todayMatches = $apiData['data'];
     }
+} else {
+    // API 호출이 실패하면 DB에서 직접 조회하도록 처리
+    try {
+        $todayMatchesQuery = "
+            SELECT 
+                m.id AS match_id,
+                m.time,
+                m.status,
+                IFNULL(ms.home_score, 0) AS home_score,
+                IFNULL(ms.away_score, 0) AS away_score,
+                ht.name AS home_team_name,
+                at.name AS away_team_name,
+                s.name AS stadium_name
+            FROM matches m
+            LEFT JOIN teams ht ON m.home_team_id = ht.id
+            LEFT JOIN teams at ON m.away_team_id = at.id
+            LEFT JOIN stadiums s ON m.stadium_id = s.id
+            LEFT JOIN match_stat ms ON m.id = ms.match_id
+            WHERE m.date = CURDATE()
+            ORDER BY m.time ASC
+        ";
+        $todayMatchesStmt = $db->query($todayMatchesQuery);
+        $todayMatches = $todayMatchesStmt->fetchAll();
+    } catch (PDOException $e) {
+        $todayMatches = [];
+    }
 }
 
-// 백엔드 API를 통해 지역별 경기 가져오기 
+$regionStats = [];
+$result = callApi($apiBaseUrl . '/matches/analytics.php', 10);
 
+if ($result['success']) {
+    $analyticsData = json_decode($result['response'], true);
+    if (isset($analyticsData['data']) && is_array($analyticsData['data'])) {
+        // ROLLUP 결과에 포함된 'Total' 값은 제외
+        $regionStats = array_filter($analyticsData['data'], function($item) {
+            return $item['region_name'] !== 'Total';
+        });
+    }
+} else {
+    // API 호출이 실패하면 DB에서 직접 조회하도록 처리
+    $regionStatsQuery = "
+        SELECT 
+            r.name as region_name,
+            COUNT(*) as match_count
+        FROM matches m
+        JOIN stadiums s ON m.stadium_id = s.id
+        JOIN regions r ON s.region_id = r.id
+        WHERE m.date = CURDATE()
+        GROUP BY r.id, r.name
+        ORDER BY match_count DESC
+    ";
+    $regionStats = $db->query($regionStatsQuery)->fetchAll();
+}
 
-// 지역별 오늘 경기 수 (뷰 대신 직접 쿼리 사용)
-$regionStatsQuery = "
-    SELECT 
-        r.name as region_name,
-        COUNT(*) as match_count
-    FROM matches m
-    JOIN stadiums s ON m.stadium_id = s.id
-    JOIN regions r ON s.region_id = r.id
-    WHERE m.date = CURDATE()
-    GROUP BY r.id, r.name
-    ORDER BY match_count DESC
-";
-$regionStats = $db->query($regionStatsQuery)->fetchAll();
+// 지역명을 ID로 매핑해서 drill-down 링크에 활용
+$regionNameToIdMap = [];
+$regionsList = $db->query("SELECT id, name FROM regions ORDER BY name")->fetchAll();
+foreach ($regionsList as $region) {
+    $regionNameToIdMap[$region['name']] = $region['id'];
+}
 
 include '../includes/header.php';
 ?>
@@ -60,11 +95,36 @@ include '../includes/header.php';
     </div>
     <div class="stat-card">
         <h3>지역별</h3>
-        <?php foreach ($regionStats as $stat): ?>
-            <p><?php echo htmlspecialchars($stat['region_name']); ?>: <?php echo $stat['match_count']; ?>경기</p>
-        <?php endforeach; ?>
+        <?php if (empty($regionStats)): ?>
+            <p style="color: #999; font-style: italic; text-align: center;">오늘 예정된 경기가 없습니다.</p>
+        <?php else: ?>
+            <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+                <?php foreach ($regionStats as $stat): 
+                    $regionName = $stat['region_name'];
+                    $regionId = $regionNameToIdMap[$regionName] ?? null;
+                    $todayMonth = date('Y-m');
+                    if ($regionId !== null):
+                ?>
+                    <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+                        <span><?php echo htmlspecialchars($regionName); ?>: <strong><?php echo $stat['match_count']; ?>경기</strong></span>
+                        <a href="matches.php?region=<?php echo urlencode($regionId); ?>&month=<?php echo urlencode($todayMonth); ?>" 
+                           class="btn btn-detail"
+                           style="padding: 6px 12px; font-size: 0.85rem; white-space: nowrap;"
+                           title="클릭하여 <?php echo htmlspecialchars($regionName); ?> 지역 경기 상세보기">
+                            상세보기
+                        </a>
+                    </div>
+                <?php else: ?>
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <span><?php echo htmlspecialchars($regionName); ?>: <strong><?php echo $stat['match_count']; ?>경기</strong></span>
+                    </div>
+                <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
+
 
 <div class="filter-section">
     <h3>필터</h3>
@@ -93,26 +153,12 @@ include '../includes/header.php';
                 <div class="match-card">
                     <div class="match-header">
                         <?php 
-                        // status에 따라 상태 표시
-                        $statusLabel = '';
-                        $statusClass = '';
-                        if (isset($match['status'])) {
-                            switch($match['status']) {
-                                case 'finished':
-                                case '완료':
-                                    $statusLabel = '완료';
-                                    $statusClass = 'status-finished';
-                                    break;
-                                case 'scheduled':
-                                case '예정':
-                                    $statusLabel = '예정';
-                                    $statusClass = 'status-scheduled';
-                                    break;
-                                default:
-                                    $statusLabel = $match['status'];
-                                    $statusClass = 'status-scheduled';
-                            }
-                        }
+                        date_default_timezone_set('Asia/Seoul');
+                        $today = date('Y-m-d');
+                        $matchTime = $match['time'] ?? '';
+                        $status = getMatchStatus($today, $matchTime);
+                        $statusLabel = $status['label'];
+                        $statusClass = $status['class'];
                         ?>
                         <span class="status-badge <?php echo $statusClass; ?>"><?php echo htmlspecialchars($statusLabel); ?></span>
                     </div>
@@ -122,14 +168,14 @@ include '../includes/header.php';
                     <div class="match-teams">
                         <div class="team home-team">
                             <strong><?php echo htmlspecialchars($match['home_team_name'] ?? ''); ?></strong>
-                            <?php if (isset($match['home_score']) && $match['home_score'] !== null): ?>
+                            <?php if ($status['status'] === 'finished' && isset($match['home_score']) && $match['home_score'] !== null): ?>
                                 <span class="score"><?php echo $match['home_score']; ?></span>
                             <?php endif; ?>
                         </div>
                         <div class="vs">VS</div>
                         <div class="team away-team">
                             <strong><?php echo htmlspecialchars($match['away_team_name'] ?? ''); ?></strong>
-                            <?php if (isset($match['away_score']) && $match['away_score'] !== null): ?>
+                            <?php if ($status['status'] === 'finished' && isset($match['away_score']) && $match['away_score'] !== null): ?>
                                 <span class="score"><?php echo $match['away_score']; ?></span>
                             <?php endif; ?>
                         </div>

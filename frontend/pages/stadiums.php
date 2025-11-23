@@ -1,6 +1,9 @@
+<!-- 경기장 상세 페이지 -->
+
 <?php
 require_once '../config/database.php';
-require_once '../includes/functions.php';
+require_once '../helpers/match_helper.php';
+require_once '../helpers/api_helper.php';
 $db = getDB();
 
 $pageTitle = "KBO 야구 경기장 정보";
@@ -8,24 +11,12 @@ $pageTitle = "KBO 야구 경기장 정보";
 $stadiumId = $_GET['id'] ?? null;
 
 if ($stadiumId) {
-    // 백엔드 API를 통해 경기장 상세 정보 가져오기 (detail.php 사용)
     $stadiumData = null;
-    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'];
-    // frontend/pages/에서 backend/로 가려면 3단계 위로 올라가야 함
-    $basePath = dirname(dirname(dirname($_SERVER['PHP_SELF'])));
-    $detailApiUrl = $protocol . '://' . $host . $basePath . '/backend/api/stadiums/detail.php?id=' . urlencode($stadiumId);
+    $apiBaseUrl = getApiBaseUrl(3);
+    $result = callApi($apiBaseUrl . '/stadiums/detail.php?id=' . urlencode($stadiumId));
     
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $detailApiUrl);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    $detailResponse = curl_exec($ch);
-    $detailHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    
-    if ($detailResponse !== false && $detailHttpCode == 200) {
-        $detailData = json_decode($detailResponse, true);
+    if ($result['success']) {
+        $detailData = json_decode($result['response'], true);
         if (isset($detailData['stadium']) && $detailData['stadium'] !== null) {
             $stadiumData = $detailData['stadium'];
         }
@@ -36,21 +27,19 @@ if ($stadiumId) {
         exit;
     }
     
-    // API 응답을 기존 코드와 호환되도록 변환
     $stadium = [
         'id' => $stadiumId,
         'name' => $stadiumData['name'] ?? '',
         'region_name' => $stadiumData['region'] ?? '',
         'location' => $stadiumData['location'] ?? '',
-        'address' => $stadiumData['address'] ?? '', // API에 없을 수 있음
+        'address' => $stadiumData['address'] ?? '',
         'capacity' => $stadiumData['capacity'] ?? 0,
         'total_matches' => $stadiumData['total_matches'] ?? 0,
         'avg_attendance' => $stadiumData['avg_spectators'] ?? null,
-        'max_attendance' => null, // API에 없음
-        'total_attendance' => null, // API에 없음
+        'max_attendance' => null,
+        'total_attendance' => null,
     ];
-    
-    // recent_match 정보가 있으면 경기 목록으로 변환
+
     $stadiumMatches = [];
     if (isset($stadiumData['recent_match']) && $stadiumData['recent_match'] !== null) {
         $recentMatch = $stadiumData['recent_match'];
@@ -168,37 +157,25 @@ if ($stadiumId) {
     
     <?php
 } else {
-    // 백엔드 API를 통해 경기장 목록 가져오기 (search.php 사용)
     $regionFilter = $_GET['region'] ?? '';
     $stadiums = [];
     
-    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'];
-    // frontend/pages/에서 backend/로 가려면 3단계 위로 올라가야 함
-    $basePath = dirname(dirname(dirname($_SERVER['PHP_SELF'])));
-    $searchApiUrl = $protocol . '://' . $host . $basePath . '/backend/api/stadiums/search.php';
+    $apiBaseUrl = getApiBaseUrl(3);
+    $searchApiUrl = $apiBaseUrl . '/stadiums/search.php';
     
-    // region_id 파라미터 추가
     if ($regionFilter) {
         $searchApiUrl .= '?region_id=' . urlencode($regionFilter);
     }
     
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $searchApiUrl);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    $searchResponse = curl_exec($ch);
-    $searchHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+    $result = callApi($searchApiUrl);
     
-    if ($searchResponse !== false && $searchHttpCode == 200) {
-        $searchData = json_decode($searchResponse, true);
+    if ($result['success']) {
+        $searchData = json_decode($result['response'], true);
         if (isset($searchData['stadiums']) && is_array($searchData['stadiums'])) {
             $stadiums = $searchData['stadiums'];
         }
     }
     
-    // 지역 목록은 DB에서 가져오기 (필터링 드롭다운용)
     $regions = $db->query("SELECT * FROM regions ORDER BY name")->fetchAll();
     
     include '../includes/header.php';
