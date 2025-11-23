@@ -97,7 +97,7 @@ include '../includes/header.php';
 
 <h2>KBO 야구 경기 일정</h2>
 
-<div class="filter-section">
+<div class="filter-section surface-card">
     <form method="GET" action="matches.php" class="filter-form">
         <label>
             월:
@@ -127,7 +127,7 @@ include '../includes/header.php';
         <p class="no-data">데이터 없음</p>
         <p style="color: #666; font-size: 0.9em;">해당 기간에 등록된 경기가 없습니다.</p>
     <?php else: ?>
-        <div class="matches-list">
+        <div class="matches-list surface-card">
             <?php 
             $currentDate = '';
             foreach ($matches as $match): 
@@ -140,10 +140,10 @@ include '../includes/header.php';
             <?php endif; ?>
             
             <div class="match-item">
-                <div class="match-time-col">
+                    <div class="match-time-col">
                     <div class="time"><?php echo htmlspecialchars($match['match_time'] ?? ''); ?></div>
                     <?php if (!empty($match['region_name'])): ?>
-                        <span class="region-badge"><?php echo htmlspecialchars($match['region_name']); ?></span>
+                            <span class="badge region-badge"><?php echo htmlspecialchars($match['region_name']); ?></span>
                     <?php endif; ?>
                     <?php 
                     // 현재 날짜/시간 기준으로 상태 계산 (API의 status 값은 무시하고 항상 재계산)
@@ -152,7 +152,7 @@ include '../includes/header.php';
                     $statusLabel = $status['label'];
                     $statusClass = $status['class'];
                     ?>
-                    <span class="status-badge <?php echo $statusClass; ?>"><?php echo htmlspecialchars($statusLabel); ?></span>
+                        <span class="badge status-badge <?php echo $statusClass; ?>"><?php echo htmlspecialchars($statusLabel); ?></span>
                 </div>
                 <div class="match-teams-col">
                     <div class="team-row">

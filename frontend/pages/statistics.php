@@ -42,7 +42,7 @@ include '../includes/header.php';
 
 <h2>KBO 야구 통계 분석</h2>
 
-<div class="statistics-container">
+<div class="statistics-container surface-card">
     <!-- 경기장별 통계 -->
     <section class="stat-section">
         <h3>경기장별 통계 (경기 수 순위)</h3>

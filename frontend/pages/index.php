@@ -52,13 +52,13 @@ include '../includes/header.php';
     <p><?php echo date('Y년 m월 d일'); ?> 경기 일정</p>
 </div>
 
-<div class="stats-grid">
-    <div class="stat-card">
+<div class="stats-grid grid grid-auto-md">
+    <div class="stat-card surface-card">
         <h3>오늘의 경기</h3>
         <p class="stat-number"><?php echo count($todayMatches); ?></p>
         <p class="stat-label">경기</p>
     </div>
-    <div class="stat-card">
+    <div class="stat-card surface-card">
         <h3>지역별</h3>
         <?php foreach ($regionStats as $stat): ?>
             <p><?php echo htmlspecialchars($stat['region_name']); ?>: <?php echo $stat['match_count']; ?>경기</p>
@@ -66,7 +66,7 @@ include '../includes/header.php';
     </div>
 </div>
 
-<div class="filter-section">
+<div class="filter-section surface-card">
     <h3>필터</h3>
     <form method="GET" action="matches.php" class="filter-form">
         <select name="region">
@@ -88,9 +88,9 @@ include '../includes/header.php';
     <?php if (empty($todayMatches)): ?>
         <p class="no-data">데이터 없음</p>
     <?php else: ?>
-        <div class="matches-grid">
+        <div class="matches-grid grid grid-auto-lg">
             <?php foreach ($todayMatches as $match): ?>
-                <div class="match-card">
+                <div class="match-card surface-card surface-card--interactive">
                     <div class="match-header">
                         <?php 
                         // status에 따라 상태 표시
@@ -114,7 +114,7 @@ include '../includes/header.php';
                             }
                         }
                         ?>
-                        <span class="status-badge <?php echo $statusClass; ?>"><?php echo htmlspecialchars($statusLabel); ?></span>
+                        <span class="badge status-badge <?php echo $statusClass; ?>"><?php echo htmlspecialchars($statusLabel); ?></span>
                     </div>
                     <div class="match-time">
                         <?php echo htmlspecialchars($match['time'] ?? ''); ?>

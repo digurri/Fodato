@@ -75,11 +75,11 @@ if ($playersResponse !== false && $playersHttpCode == 200) {
 include '../includes/header.php';
 ?>
 
-<div class="team-detail">
+<div class="team-detail surface-card">
     <h2><?php echo htmlspecialchars($team['name']); ?></h2>
     
-    <div class="team-info-grid">
-        <div class="info-card">
+    <div class="team-info-grid grid grid-auto-lg">
+        <div class="info-card surface-card surface-card--muted">
             <h4>기본 정보</h4>
             <table>
                 <tr>
@@ -109,7 +109,7 @@ include '../includes/header.php';
                 <p>데이터 없음</p>
             </div>
         <?php else: ?>
-            <div class="players-table-container">
+            <div class="players-table-container surface-card">
                 <table class="players-table">
                     <thead>
                         <tr>

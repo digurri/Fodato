@@ -68,11 +68,11 @@ if ($stadiumId) {
     include '../includes/header.php';
     ?>
     
-    <div class="stadium-detail">
+    <div class="stadium-detail surface-card">
         <h2><?php echo htmlspecialchars($stadium['name']); ?></h2>
         
-        <div class="stadium-info-grid">
-            <div class="info-card">
+        <div class="stadium-info-grid grid grid-auto-lg">
+            <div class="info-card surface-card surface-card--muted">
                 <h4>기본 정보</h4>
                 <table>
                     <tr>
@@ -96,7 +96,7 @@ if ($stadiumId) {
                 </table>
             </div>
             
-            <div class="info-card">
+            <div class="info-card surface-card surface-card--muted">
                 <h4>통계 정보</h4>
                 <table>
                     <tr>
@@ -113,14 +113,14 @@ if ($stadiumId) {
             </div>
         </div>
         
-        <div class="stadium-matches">
+        <div class="stadium-matches surface-card surface-card--muted">
             <h4>최근 경기</h4>
             <?php if (empty($stadiumMatches)): ?>
                 <div class="no-data">
                     <p>데이터 없음</p>
                 </div>
             <?php else: ?>
-                <div class="matches-list">
+                <div class="matches-list surface-card">
                     <?php foreach ($stadiumMatches as $match): 
                         if (isset($match['match_date']) && isset($match['match_time'])) {
                             $status = getMatchStatus($match['match_date'], $match['match_time']);
@@ -136,9 +136,9 @@ if ($stadiumId) {
                                     <?php echo htmlspecialchars($match['match_date'] ?? ''); ?>
                                 <?php endif; ?>
                                 <?php if (isset($status['class']) && $status['class']): ?>
-                                    <span class="status-badge <?php echo $status['class']; ?>"><?php echo $status['label']; ?></span>
+                                    <span class="badge status-badge <?php echo $status['class']; ?>"><?php echo $status['label']; ?></span>
                                 <?php else: ?>
-                                    <span class="status-badge"><?php echo htmlspecialchars($match['status'] ?? ''); ?></span>
+                                    <span class="badge status-badge"><?php echo htmlspecialchars($match['status'] ?? ''); ?></span>
                                 <?php endif; ?>
                             </div>
                             <div class="match-teams">
@@ -206,7 +206,7 @@ if ($stadiumId) {
     
     <h2>KBO 야구 경기장 정보</h2>
     
-    <div class="filter-section">
+    <div class="filter-section surface-card">
         <form method="GET" action="stadiums.php" class="filter-form">
             <label>
                 지역:
@@ -226,17 +226,17 @@ if ($stadiumId) {
         </form>
     </div>
     
-    <div class="stadiums-grid">
+    <div class="stadiums-grid grid grid-auto-lg">
         <?php if (empty($stadiums)): ?>
             <div class="no-data" style="grid-column: 1 / -1;">
                 <p>데이터 없음</p>
             </div>
         <?php else: ?>
             <?php foreach ($stadiums as $stadium): ?>
-                <div class="stadium-card">
+                <div class="stadium-card surface-card surface-card--interactive">
                     <h3><?php echo htmlspecialchars($stadium['name'] ?? ''); ?></h3>
                     <div class="stadium-badges">
-                        <span class="region-badge"><?php echo htmlspecialchars($stadium['region'] ?? ''); ?></span>
+                        <span class="badge region-badge"><?php echo htmlspecialchars($stadium['region'] ?? ''); ?></span>
                     </div>
                     <div class="stadium-info">
                         <p><strong>위치:</strong> <?php echo htmlspecialchars($stadium['location'] ?? ''); ?></p>

@@ -210,14 +210,14 @@ $matchPlayers = $matchPlayersStmt->fetchAll();
                     <div class="comment-header">
                         <div class="comment-author-info">
                             <strong class="comment-nickname">익명</strong>
-                            <?php if ($comment['supporting_team_name']): ?>
-                                <span class="supporting-badge team-badge">응원: <?php echo htmlspecialchars($comment['supporting_team_name']); ?></span>
-                            <?php endif; ?>
-                            <?php if ($comment['supporting_player_name']): ?>
-                                <span class="supporting-badge player-badge">
-                                    선수: <?php echo htmlspecialchars($comment['supporting_player_name']); ?>
-                                </span>
-                            <?php endif; ?>
+                              <?php if ($comment['supporting_team_name']): ?>
+                                  <span class="badge supporting-badge team-badge">응원: <?php echo htmlspecialchars($comment['supporting_team_name']); ?></span>
+                              <?php endif; ?>
+                              <?php if ($comment['supporting_player_name']): ?>
+                                  <span class="badge supporting-badge player-badge">
+                                      선수: <?php echo htmlspecialchars($comment['supporting_player_name']); ?>
+                                  </span>
+                              <?php endif; ?>
                         </div>
                         <span class="comment-date">
                             <?php echo date('Y-m-d H:i', strtotime($comment['created_at'])); ?>

@@ -35,7 +35,7 @@ include '../includes/header.php';
         <?php if (empty($matches)): ?>
             <p class="no-data">데이터 없음</p>
         <?php else: ?>
-            <div class="matches-list">
+            <div class="matches-list surface-card">
                 <?php 
                 $currentDate = '';
                 foreach ($matches as $match): 
@@ -50,7 +50,7 @@ include '../includes/header.php';
                 <div class="match-item">
                     <div class="match-time-col">
                         <div class="time"><?php echo date('H:i', strtotime($match['match_time'])); ?></div>
-                        <span class="region-badge"><?php echo htmlspecialchars($match['region_name']); ?></span>
+                        <span class="badge region-badge"><?php echo htmlspecialchars($match['region_name']); ?></span>
                     </div>
                     <div class="match-teams-col">
                         <div class="team-row">

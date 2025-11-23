@@ -190,7 +190,7 @@ if ($teamComparison) {
 include '../includes/header.php';
 ?>
 
-<div class="match-detail">
+<div class="match-detail surface-card">
     <div class="detail-header">
         <?php 
         // API의 status 필드 사용
@@ -219,7 +219,7 @@ include '../includes/header.php';
             $statusClass = $status['class'];
         }
         ?>
-        <span class="status-badge <?php echo $statusClass; ?>">
+        <span class="badge status-badge <?php echo $statusClass; ?>">
             <?php echo htmlspecialchars($statusLabel); ?>
         </span>
     </div>
@@ -240,8 +240,8 @@ include '../includes/header.php';
         </div>
     </div>
 
-    <div class="match-info-grid">
-        <div class="info-card">
+    <div class="match-info-grid grid grid-auto-md">
+        <div class="info-card surface-card surface-card--muted">
             <h4>경기 정보</h4>
             <table>
                 <tr>
@@ -271,7 +271,7 @@ include '../includes/header.php';
             </table>
         </div>
 
-        <div class="info-card">
+        <div class="info-card surface-card surface-card--muted">
             <h4>경기 통계</h4>
             <table>
                 <?php if (isset($match['attendance']) && $match['attendance']): ?>
@@ -315,11 +315,11 @@ include '../includes/header.php';
     </div>
 
     <!-- 팀별 성적 비교 -->
-    <div class="team-stats-comparison">
+    <div class="team-stats-comparison surface-card surface-card--muted">
         <h3>팀별 성적 비교</h3>
-        <div class="team-stats-grid">
+        <div class="team-stats-grid grid grid-auto-md">
             <!-- 홈팀 통계 -->
-            <div class="team-stat-card">
+            <div class="team-stat-card surface-card">
                 <h4><?php echo htmlspecialchars($match['home_team']); ?></h4>
                 <div class="stat-items">
                     <div class="stat-item">
@@ -368,7 +368,7 @@ include '../includes/header.php';
             </div>
 
             <!-- 원정팀 통계 -->
-            <div class="team-stat-card">
+            <div class="team-stat-card surface-card">
                 <h4><?php echo htmlspecialchars($match['away_team']); ?></h4>
                 <div class="stat-items">
                     <div class="stat-item">

@@ -50,7 +50,7 @@ include '../includes/header.php';
 
 <h2>KBO 팀 목록</h2>
 
-<div class="filter-section">
+<div class="filter-section surface-card">
     <form method="GET" action="teams.php" class="filter-form">
         <label>
             팀 선택:
@@ -86,12 +86,12 @@ include '../includes/header.php';
             </div>
         <?php endif; ?>
     <?php else: ?>
-        <div class="stadiums-grid">
+        <div class="stadiums-grid grid grid-auto-lg">
             <?php foreach ($teams as $team): ?>
-                <div class="stadium-card">
+                <div class="stadium-card surface-card surface-card--interactive">
                     <h3><?php echo htmlspecialchars($team['name'] ?? ''); ?></h3>
                     <div class="stadium-badges">
-                        <span class="region-badge"><?php echo htmlspecialchars($team['region'] ?? ''); ?></span>
+                        <span class="badge region-badge"><?php echo htmlspecialchars($team['region'] ?? ''); ?></span>
                     </div>
                     <div class="stadium-info">
                         <p><strong>선수 수:</strong> <?php echo number_format($team['player_count'] ?? 0); ?>명</p>
