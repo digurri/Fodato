@@ -1,5 +1,9 @@
+<!-- 팀 상세 페이지 -->
+ 
+
 <?php
 require_once '../config/database.php';
+require_once '../helpers/api_helper.php';
 $db = getDB();
 
 $pageTitle = "KBO 팀 상세";
@@ -11,24 +15,12 @@ if (!$teamId) {
     exit;
 }
 
-// 백엔드 API를 통해 팀 상세 정보 가져오기 (detail.php 사용)
 $teamData = null;
-$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-$host = $_SERVER['HTTP_HOST'];
-// frontend/pages/에서 backend/로 가려면 3단계 위로 올라가야 함
-$basePath = dirname(dirname(dirname($_SERVER['PHP_SELF'])));
-$detailApiUrl = $protocol . '://' . $host . $basePath . '/backend/api/teams/detail.php?team_id=' . urlencode($teamId);
+$apiBaseUrl = getApiBaseUrl(3);
+$result = callApi($apiBaseUrl . '/teams/detail.php?team_id=' . urlencode($teamId));
 
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $detailApiUrl);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-$detailResponse = curl_exec($ch);
-$detailHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-if ($detailResponse !== false && $detailHttpCode == 200) {
-    $detailData = json_decode($detailResponse, true);
+if ($result['success']) {
+    $detailData = json_decode($result['response'], true);
     if (isset($detailData['data']) && $detailData['data'] !== null) {
         $teamData = $detailData['data'];
     }
@@ -39,7 +31,6 @@ if (!$teamData) {
     exit;
 }
 
-// API 응답을 기존 코드와 호환되도록 변환
 $team = [
     'id' => $teamData['team_id'],
     'team_id' => $teamData['team_id'],
@@ -53,20 +44,11 @@ $stats = [
     'today_matches' => $teamData['today_matches'] ?? 0,
 ];
 
-// 백엔드 API를 통해 팀 선수 명단 가져오기 (players.php 사용)
 $players = [];
-$playersApiUrl = $protocol . '://' . $host . $basePath . '/backend/api/teams/players.php?team_id=' . urlencode($teamId);
+$result = callApi($apiBaseUrl . '/teams/players.php?team_id=' . urlencode($teamId));
 
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $playersApiUrl);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-$playersResponse = curl_exec($ch);
-$playersHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-if ($playersResponse !== false && $playersHttpCode == 200) {
-    $playersData = json_decode($playersResponse, true);
+if ($result['success']) {
+    $playersData = json_decode($result['response'], true);
     if (isset($playersData['data']) && is_array($playersData['data'])) {
         $players = $playersData['data'];
     }

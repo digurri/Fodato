@@ -1,10 +1,12 @@
-<?php
+<!-- 종목별 경기 일정 페이지 -->
+
+<?php 
 require_once '../config/database.php';
+require_once '../helpers/match_helper.php';
 $db = getDB();
 
 $pageTitle = "KBO 야구";
 
-// 야구 경기 일정만 표시 (sports 테이블 없이 직접 조회)
 $query = "
     SELECT 
         m.*,
@@ -51,17 +53,23 @@ include '../includes/header.php';
                     <div class="match-time-col">
                         <div class="time"><?php echo date('H:i', strtotime($match['match_time'])); ?></div>
                         <span class="region-badge"><?php echo htmlspecialchars($match['region_name']); ?></span>
+                        <?php 
+                        $status = getMatchStatus($match['match_date'], $match['match_time']);
+                        $statusLabel = $status['label'];
+                        $statusClass = $status['class'];
+                        ?>
+                        <span class="status-badge <?php echo $statusClass; ?>"><?php echo htmlspecialchars($statusLabel); ?></span>
                     </div>
                     <div class="match-teams-col">
                         <div class="team-row">
                             <span class="team-name"><?php echo htmlspecialchars($match['home_team']); ?></span>
-                            <?php if ($match['home_score'] !== null): ?>
+                            <?php if ($status['status'] === 'finished' && $match['home_score'] !== null): ?>
                                 <span class="score"><?php echo $match['home_score']; ?></span>
                             <?php endif; ?>
                         </div>
                         <div class="team-row">
                             <span class="team-name"><?php echo htmlspecialchars($match['away_team']); ?></span>
-                            <?php if ($match['away_score'] !== null): ?>
+                            <?php if ($status['status'] === 'finished' && $match['away_score'] !== null): ?>
                                 <span class="score"><?php echo $match['away_score']; ?></span>
                             <?php endif; ?>
                         </div>

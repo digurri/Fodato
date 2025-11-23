@@ -1,33 +1,23 @@
+<!-- 경기 통계 페이지 -->
+
 <?php
 require_once '../config/database.php';
+require_once '../helpers/api_helper.php';
 $db = getDB();
 
 $pageTitle = "KBO 야구 통계 분석";
 
-// 백엔드 API를 통해 통계 데이터 가져오기 (index.php 사용)
 $statisticsData = null;
-$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-$host = $_SERVER['HTTP_HOST'];
-// frontend/pages/에서 backend/로 가려면 3단계 위로 올라가야 함
-$basePath = dirname(dirname(dirname($_SERVER['PHP_SELF'])));
-$apiUrl = $protocol . '://' . $host . $basePath . '/backend/api/statistics/index.php';
+$apiBaseUrl = getApiBaseUrl(3);
+$result = callApi($apiBaseUrl . '/statistics/index.php');
 
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $apiUrl);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-$apiResponse = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-if ($apiResponse !== false && $httpCode == 200) {
-    $apiData = json_decode($apiResponse, true);
+if ($result['success']) {
+    $apiData = json_decode($result['response'], true);
     if (isset($apiData['result']) && $apiData['result'] !== null) {
         $statisticsData = $apiData['result'];
     }
 }
 
-// API 응답을 기존 코드와 호환되도록 변환
 $stadiumStats = $statisticsData['stadiums'] ?? [];
 $seasonStats = $statisticsData['leagues'] ?? [];
 $regionStats = $statisticsData['regions'] ?? [];
@@ -160,7 +150,7 @@ include '../includes/header.php';
 
     <!-- 날짜별 통계 (WINDOWING) -->
     <section class="stat-section">
-        <h3>최근 날짜별 경기 통계 (최근 7일, WINDOWING 함수 사용)</h3>
+        <h3>최근 날짜별 경기 통계</h3>
         <div class="table-responsive">
             <table class="stat-table">
                 <thead>
@@ -342,14 +332,14 @@ include '../includes/header.php';
                                 ?></strong></td>
                                 <td class="stat-max"><?php 
                                     if ($position === '투수') {
-                                        echo isset($perf['best_perform']) ? number_format((float)$perf['best_perform'], 2) : '-'; // 투수는 낮을수록 좋음
+                                        echo isset($perf['best_perform']) ? number_format((float)$perf['best_perform'], 2) : '-';
                                     } else {
                                         echo isset($perf['best_perform']) ? number_format((float)$perf['best_perform'], 3) : '-';
                                     }
                                 ?></td>
                                 <td class="stat-min"><?php 
                                     if ($position === '투수') {
-                                        echo isset($perf['worst_perform']) ? number_format((float)$perf['worst_perform'], 2) : '-'; // 투수는 높을수록 나쁨
+                                        echo isset($perf['worst_perform']) ? number_format((float)$perf['worst_perform'], 2) : '-';
                                     } else {
                                         echo isset($perf['worst_perform']) ? number_format((float)$perf['worst_perform'], 3) : '-';
                                     }
