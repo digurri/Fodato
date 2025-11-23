@@ -23,9 +23,115 @@ $seasonStats = $statisticsData['leagues'] ?? [];
 $regionStats = $statisticsData['regions'] ?? [];
 $dailyStats = $statisticsData['dates'] ?? [];
 $topAttendance = $statisticsData['matches'] ?? [];
-$teamBattingAvg = $statisticsData['teams_ba'] ?? [];
-$teamSteal = $statisticsData['teams_steal'] ?? [];
-$positionPerformance = $statisticsData['positions'] ?? [];
+
+// 팀별 타율 통계
+try {
+    $teamBattingAvgQuery = "
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY team_ba DESC) AS ba_ranking,
+            team_name,
+            team_region,
+            team_hitter,
+            team_ba
+        FROM (
+            SELECT
+                t.name AS team_name,
+                r.name AS team_region,
+                COUNT(DISTINCT mp.player_id) AS team_hitter,
+                ROUND(SUM(mp.hits) / NULLIF(SUM(mp.at_bats), 0), 3) AS team_ba
+            FROM teams t
+            JOIN regions r ON t.region_id = r.id
+            JOIN match_players mp ON mp.team_id = t.id
+            JOIN match_stat ms ON mp.match_id = ms.match_id
+            GROUP BY t.id, t.name, r.name
+        ) AS calculated_ba
+        ORDER BY ba_ranking ASC
+    ";
+    $teamBattingAvg = $db->query($teamBattingAvgQuery)->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $teamBattingAvg = [];
+}
+
+// 팀별 도루 성공률
+try {
+    $teamStealQuery = "
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY steal_rate DESC) AS steal_ranking,
+            team_name,
+            team_region,
+            steal_try,
+            steal_success,
+            CONCAT(ROUND(
+                CASE WHEN steal_try = 0 THEN 0
+                ELSE (steal_success / steal_try) * 100 END, 1), '%') AS steal_rate
+        FROM (
+            SELECT
+                t.name AS team_name,
+                r.name AS team_region,
+                SUM(mp.stolen_base_tries) AS steal_try,
+                SUM(mp.stolen_bases) AS steal_success
+            FROM teams t
+            JOIN regions r ON t.region_id = r.id
+            JOIN match_players mp ON mp.team_id = t.id
+            JOIN match_stat ms ON mp.match_id = ms.match_id
+            GROUP BY t.id, t.name, r.name
+        ) AS subquery
+        ORDER BY steal_ranking ASC
+    ";
+    $teamSteal = $db->query($teamStealQuery)->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $teamSteal = [];
+}
+
+// 포지션별 퍼포먼스
+try {
+    $positionPerformanceQuery = "
+        SELECT 
+            mp.position AS position,
+            CASE
+                WHEN mp.position = '투수' THEN '평균자책점'
+                WHEN mp.position = '지명타자' THEN '타율'
+                ELSE '수비율'
+            END AS indicator,
+            COUNT(DISTINCT mp.player_id) AS players,
+            ROUND(AVG(
+                CASE 
+                    WHEN mp.position = '투수' AND mp.innings_pitched > 0 THEN mp.earned_runs / mp.innings_pitched
+                    WHEN mp.position IN ('포수', '1루수', '2루수', '3루수', '내야수', '외야수', '유격수', '좌익수', '중견수', '우익수') THEN
+                        COALESCE((mp.putouts + mp.assists) / NULLIF((mp.putouts + mp.assists + mp.errors), 0), 0)
+                    WHEN mp.position = '지명타자' AND mp.at_bats > 0 THEN mp.hits / mp.at_bats
+                    ELSE NULL
+                END
+            ), 3) AS avg_perform,
+            CASE
+                WHEN mp.position = '투수' THEN MIN(mp.earned_runs / NULLIF(mp.innings_pitched, 0))
+                ELSE MAX(COALESCE(
+                    CASE 
+                        WHEN mp.position IN ('포수', '1루수', '2루수', '3루수', '내야수', '외야수', '유격수', '좌익수', '중견수', '우익수') THEN
+                            (mp.putouts + mp.assists) / NULLIF((mp.putouts + mp.assists + mp.errors), 0)
+                        WHEN mp.position = '지명타자' THEN mp.hits / NULLIF(mp.at_bats, 0)
+                        ELSE NULL
+                    END, 0))
+            END AS best_perform,
+            CASE
+                WHEN mp.position = '투수' THEN MAX(mp.earned_runs / NULLIF(mp.innings_pitched, 0))
+                ELSE MIN(COALESCE(
+                    CASE 
+                        WHEN mp.position IN ('포수', '1루수', '2루수', '3루수', '내야수', '외야수', '유격수', '좌익수', '중견수', '우익수') THEN
+                            (mp.putouts + mp.assists) / NULLIF((mp.putouts + mp.assists + mp.errors), 0)
+                        WHEN mp.position = '지명타자' THEN mp.hits / NULLIF(mp.at_bats, 0)
+                        ELSE NULL
+                    END, 0))
+            END AS worst_perform
+        FROM match_players mp
+        JOIN match_stat ms ON mp.match_id = ms.match_id
+        GROUP BY mp.position
+        ORDER BY mp.position
+    ";
+    $positionPerformance = $db->query($positionPerformanceQuery)->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $positionPerformance = [];
+}
 
 include '../includes/header.php';
 ?>
