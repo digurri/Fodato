@@ -2,6 +2,10 @@
 -- KBO 야구 일정 웹사이트 (dbcreate.sql)
 -- --------------------------------------------------------
 
+CREATE USER IF NOT EXISTS'team05_db'@'localhost' IDENTIFIED BY 'team05_db';
+GRANT ALL PRIVILEGES ON team05_db.* TO 'team05_db'@'localhost';
+FLUSH PRIVILEGES;
+
 CREATE DATABASE IF NOT EXISTS team05_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE team05_db;
 
