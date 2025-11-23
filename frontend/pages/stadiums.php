@@ -8,16 +8,16 @@ $db = getDB();
 
 $pageTitle = "KBO 야구 경기장 정보";
 
-$stadiumId = $_GET['id'] ?? null;
+$stadiumId = isset($_GET['id']) ? intval($_GET['id']) : null;
 
-if ($stadiumId) {
+if ($stadiumId && $stadiumId > 0) {
     $stadiumData = null;
     $apiBaseUrl = getApiBaseUrl(3);
     $result = callApi($apiBaseUrl . '/stadiums/detail.php?id=' . urlencode($stadiumId));
     
     if ($result['success']) {
         $detailData = json_decode($result['response'], true);
-        if (isset($detailData['stadium']) && $detailData['stadium'] !== null) {
+        if ($detailData && isset($detailData['stadium']) && $detailData['stadium'] !== null) {
             $stadiumData = $detailData['stadium'];
         }
     }
@@ -220,7 +220,23 @@ if ($stadiumId) {
                         <p><strong>수용 인원:</strong> <?php echo number_format($stadium['capacity'] ?? 0); ?>명</p>
                         <p><strong>총 경기:</strong> <?php echo number_format($stadium['total_matches'] ?? 0); ?>경기</p>
                     </div>
-                    <a href="stadiums.php?id=<?php echo $stadium['id'] ?? ''; ?>" class="btn-detail">상세보기</a>
+                    <?php
+                    // 경기장 이름으로 ID 조회
+                    $stadiumIdForLink = null;
+                    if (isset($stadium['name'])) {
+                        $idQuery = $db->prepare("SELECT id FROM stadiums WHERE name = :name LIMIT 1");
+                        $idQuery->execute([':name' => $stadium['name']]);
+                        $idResult = $idQuery->fetch();
+                        if ($idResult) {
+                            $stadiumIdForLink = $idResult['id'];
+                        }
+                    }
+                    ?>
+                    <?php if ($stadiumIdForLink): ?>
+                        <a href="stadiums.php?id=<?php echo $stadiumIdForLink; ?>" class="btn-detail">상세보기</a>
+                    <?php else: ?>
+                        <span class="btn-detail" style="opacity: 0.5; cursor: not-allowed;">상세보기</span>
+                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
