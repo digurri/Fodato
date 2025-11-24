@@ -1,162 +1,95 @@
-<!-- 경기 상세 페이지 -->
-
 <?php
+require_once '../config/config.php';
 require_once '../config/database.php';
 require_once '../helpers/match_helper.php';
 require_once '../helpers/api_helper.php';
-$db = getDB();
 
+$db = getDB();
 $pageTitle = "KBO 야구 경기 상세";
 
-$matchId = $_GET['id'] ?? 0;
-
+// ID 검증
+$matchId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if (!$matchId) {
     header('Location: matches.php');
     exit;
 }
 
+
+$apiBaseUrl = getApiBaseUrl();
 $matchData = null;
-$apiBaseUrl = getApiBaseUrl(3);
-$result = callApi($apiBaseUrl . '/matches/detail.php?match_id=' . urlencode($matchId));
+$result = callApi($apiBaseUrl . '/matches/detail.php?match_id=' . $matchId);
 
 if ($result['success']) {
-    $apiData = json_decode($result['response'], true);
-    if (isset($apiData['data']) && $apiData['data'] !== null) {
-        $matchData = $apiData['data'];
-    }
+    $json = json_decode($result['response'], true);
+    $matchData = $json['data'] ?? null;
 }
+
 
 if (!$matchData) {
     header('Location: matches.php');
     exit;
 }
 
+// API에 없는 정보(관중, 경기장 상세, 지역 등)만 추가 조회
+
+$supplementQuery = "
+    SELECT 
+        s.location, s.capacity, r.name as region_name,
+        ms.attendance, ms.winning_hitter_name, ms.winning_hit_description
+    FROM matches m
+    LEFT JOIN stadiums s ON m.stadium_id = s.id
+    LEFT JOIN regions r ON s.region_id = r.id
+    LEFT JOIN match_stat ms ON m.id = ms.match_id
+    WHERE m.id = :match_id
+    LIMIT 1
+";
+$stmt = $db->prepare($supplementQuery);
+$stmt->execute([':match_id' => $matchId]);
+$extraData = $stmt->fetch() ?: []; 
+
 $match = [
     'id' => $matchData['match_id'],
-    'match_id' => $matchData['match_id'],
-    'match_date' => $matchData['date'],
-    'match_time' => $matchData['time'],
-    'status' => $matchData['status'],
-    'home_team_id' => $matchData['home']['team_id'],
+    'date' => $matchData['date'],
+    'time' => $matchData['time'],
+    'status' => $matchData['status'], 
     'home_team' => $matchData['home']['name'],
     'home_score' => $matchData['home']['score'],
-    'home_team_logo' => $matchData['home']['logo'] ?? null,
-    'away_team_id' => $matchData['away']['team_id'],
+    'home_logo' => $matchData['home']['logo'] ?? '',
     'away_team' => $matchData['away']['name'],
     'away_score' => $matchData['away']['score'],
-    'away_team_logo' => $matchData['away']['logo'] ?? null,
+    'away_logo' => $matchData['away']['logo'] ?? '',
     'stadium_name' => $matchData['stadium']['name'],
-    'weather' => $matchData['stadium']['weather'] ?? null,
-    'mvp' => $matchData['result']['mvp'] ?? null,
-    'winning_hit' => $matchData['result']['winning_hit'] ?? null,
+    'weather' => $matchData['stadium']['weather'] ?? '',
+    'mvp' => $matchData['result']['mvp'] ?? '',
+    // API에 winning_hit 없으면 DB의 winning_hitter_name과 winning_hit_description 조합 사용
+    'winning_hit' => $matchData['result']['winning_hit'] ?? (
+        ($extraData['winning_hitter_name'] ?? '') 
+        ? ($extraData['winning_hitter_name'] . ($extraData['winning_hit_description'] ? ' (' . $extraData['winning_hit_description'] . ')' : ''))
+        : null
+    ),
+    
+    // DB에서 가져온 추가 정보
+    'location' => $extraData['location'] ?? '-',
+    'capacity' => $extraData['capacity'] ?? 0,
+    'region_name' => $extraData['region_name'] ?? '-',
+    'attendance' => $extraData['attendance'] ?? 0,
+    'stadium_id' => $matchData['stadium_id'] ?? null // API에 없으면 null
 ];
 
-// API에 없는 경기장 상세 정보는 DB에서 조회
-$stadiumInfoQuery = "
-    SELECT 
-        s.id as stadium_id,
-        s.location,
-        s.capacity,
-        r.name as region_name
-    FROM stadiums s
-    JOIN regions r ON s.region_id = r.id
-    WHERE s.name = :stadium_name
-    LIMIT 1
-";
-$stadiumStmt = $db->prepare($stadiumInfoQuery);
-$stadiumStmt->execute([':stadium_name' => $match['stadium_name']]);
-$stadiumInfo = $stadiumStmt->fetch();
-
-if ($stadiumInfo) {
-    $match['stadium_id'] = $stadiumInfo['stadium_id'];
-    $match['region_name'] = $stadiumInfo['region_name'] ?? '';
-    $match['capacity'] = $stadiumInfo['capacity'] ?? 0;
-    $match['location'] = $stadiumInfo['location'] ?? '';
-} else {
-    $match['stadium_id'] = null;
-    $match['region_name'] = '';
-    $match['capacity'] = 0;
-    $match['location'] = '';
+// 팀 비교 데이터
+$comparisonData = null;
+$compResult = callApi($apiBaseUrl . '/matches/comparison.php?match_id=' . $matchId);
+if ($compResult['success']) {
+    $compJson = json_decode($compResult['response'], true);
+    $comparisonData = $compJson['data'] ?? null;
 }
 
-$matchStatQuery = "
-    SELECT attendance
-    FROM match_stat
-    WHERE match_id = :match_id
-    LIMIT 1
-";
-$matchStatStmt = $db->prepare($matchStatQuery);
-$matchStatStmt->execute([':match_id' => $matchId]);
-$matchStat = $matchStatStmt->fetch();
+$homeStats = $comparisonData['home'] ?? [];
+$awayStats = $comparisonData['away'] ?? [];
 
-if ($matchStat) {
-    $match['attendance'] = $matchStat['attendance'] ?? null;
-} else {
-    $match['attendance'] = null;
-}
-
-// game_winning_hit 컬럼 존재 여부 확인 (선택적 컬럼)
-$columnExists = false;
-try {
-    $checkQuery = "SHOW COLUMNS FROM match_stat LIKE 'game_winning_hit'";
-    $checkStmt = $db->query($checkQuery);
-    $columnExists = $checkStmt->fetch() !== false;
-} catch (PDOException $e) {
-}
-
-if ($columnExists) {
-    $gameWinningHitQuery = "
-        SELECT game_winning_hit
-        FROM match_stat
-        WHERE match_id = :match_id
-        LIMIT 1
-    ";
-    $gameWinningHitStmt = $db->prepare($gameWinningHitQuery);
-    $gameWinningHitStmt->execute([':match_id' => $matchId]);
-    $gameWinningHit = $gameWinningHitStmt->fetch();
-    if ($gameWinningHit) {
-        $match['game_winning_hit'] = $gameWinningHit['game_winning_hit'];
-    }
-}
-
+// 사용자 토큰 (댓글용)
 if (!isset($_COOKIE['user_token'])) {
-    $userToken = bin2hex(random_bytes(16));
-    setcookie('user_token', $userToken, time() + (86400 * 365), '/');
-} else {
-    $userToken = $_COOKIE['user_token'];
-}
-
-$teamComparison = null;
-$result = callApi($apiBaseUrl . '/matches/comparison.php?match_id=' . urlencode($matchId));
-
-if ($result['success']) {
-    $comparisonData = json_decode($result['response'], true);
-    if (isset($comparisonData['data']) && $comparisonData['data'] !== null) {
-        $teamComparison = $comparisonData['data'];
-    }
-}
-
-$homeTeamStats = null;
-$awayTeamStats = null;
-
-if ($teamComparison) {
-    $homeTeamStats = [
-        'team_batting_avg' => $teamComparison['home']['avg_batting'] ?? null,
-        'steal_success_rate' => isset($teamComparison['home']['stolen_base_success_rate']) 
-            ? str_replace('%', '', $teamComparison['home']['stolen_base_success_rate']) 
-            : null,
-        'total_stolen_bases' => $teamComparison['home']['total_stolen_bases'] ?? 0,
-        'total_steal_attempts' => null,
-    ];
-    
-    $awayTeamStats = [
-        'team_batting_avg' => $teamComparison['away']['avg_batting'] ?? null,
-        'steal_success_rate' => isset($teamComparison['away']['stolen_base_success_rate']) 
-            ? str_replace('%', '', $teamComparison['away']['stolen_base_success_rate']) 
-            : null,
-        'total_stolen_bases' => $teamComparison['away']['total_stolen_bases'] ?? 0,
-        'total_steal_attempts' => null,
-    ];
+    setcookie('user_token', bin2hex(random_bytes(16)), time() + (86400 * 365), '/');
 }
 
 include '../includes/header.php';
@@ -165,13 +98,11 @@ include '../includes/header.php';
 <div class="match-detail">
     <div class="detail-header">
         <?php 
-        date_default_timezone_set('Asia/Seoul');
-        $status = getMatchStatus($match['match_date'], $match['match_time']);
-        $statusLabel = $status['label'];
-        $statusClass = $status['class'];
+        // 헬퍼 함수로 상태 표시
+        $statusInfo = getMatchStatus($match['date'], $match['time']);
         ?>
-        <span class="status-badge <?php echo $statusClass; ?>">
-            <?php echo htmlspecialchars($statusLabel); ?>
+        <span class="status-badge <?php echo $statusInfo['class']; ?>">
+            <?php echo htmlspecialchars($statusInfo['label']); ?>
         </span>
     </div>
 
@@ -179,22 +110,14 @@ include '../includes/header.php';
         <div class="team-section">
             <h3><?php echo htmlspecialchars($match['home_team']); ?></h3>
             <div class="score-large">
-                <?php if ($status['status'] === 'finished'): ?>
-                    <?php echo $match['home_score'] !== null ? $match['home_score'] : '-'; ?>
-                <?php else: ?>
-                    -
-                <?php endif; ?>
+                <?php echo ($statusInfo['status'] === 'finished') ? $match['home_score'] : '-'; ?>
             </div>
         </div>
         <div class="vs-section">VS</div>
         <div class="team-section">
             <h3><?php echo htmlspecialchars($match['away_team']); ?></h3>
             <div class="score-large">
-                <?php if ($status['status'] === 'finished'): ?>
-                    <?php echo $match['away_score'] !== null ? $match['away_score'] : '-'; ?>
-                <?php else: ?>
-                    -
-                <?php endif; ?>
+                <?php echo ($statusInfo['status'] === 'finished') ? $match['away_score'] : '-'; ?>
             </div>
         </div>
     </div>
@@ -205,11 +128,11 @@ include '../includes/header.php';
             <table>
                 <tr>
                     <th>날짜</th>
-                    <td><?php echo date('Y년 m월 d일', strtotime($match['match_date'])); ?></td>
+                    <td><?php echo date('Y년 m월 d일', strtotime($match['date'])); ?></td>
                 </tr>
                 <tr>
                     <th>시간</th>
-                    <td><?php echo htmlspecialchars($match['match_time']); ?></td>
+                    <td><?php echo htmlspecialchars($match['time']); ?></td>
                 </tr>
                 <tr>
                     <th>경기장</th>
@@ -217,48 +140,43 @@ include '../includes/header.php';
                 </tr>
                 <tr>
                     <th>지역</th>
-                    <td><?php echo !empty($match['region_name']) ? htmlspecialchars($match['region_name']) : '-'; ?></td>
+                    <td><?php echo htmlspecialchars($match['region_name']); ?></td>
                 </tr>
                 <tr>
                     <th>주소</th>
-                    <td><?php echo !empty($match['location']) ? htmlspecialchars($match['location']) : '-'; ?></td>
+                    <td><?php echo htmlspecialchars($match['location']); ?></td>
                 </tr>
                 <tr>
                     <th>수용 인원</th>
-                    <td><?php echo isset($match['capacity']) && $match['capacity'] > 0 ? number_format($match['capacity']) . '명' : '-'; ?></td>
+                    <td><?php echo $match['capacity'] > 0 ? number_format($match['capacity']) . '명' : '-'; ?></td>
                 </tr>
             </table>
         </div>
 
-        <?php if ($status['status'] === 'finished'): ?>
+        <?php if ($statusInfo['status'] === 'finished'): ?>
         <div class="info-card">
             <h4>경기 통계</h4>
             <table>
-                <?php if (isset($match['attendance']) && $match['attendance']): ?>
+                <?php if ($match['attendance']): ?>
                 <tr>
                     <th>관중 수</th>
                     <td><?php echo number_format($match['attendance']); ?>명</td>
                 </tr>
                 <?php endif; ?>
+                
                 <?php if ($match['weather']): ?>
                 <tr>
                     <th>날씨</th>
                     <td><?php echo htmlspecialchars($match['weather']); ?></td>
                 </tr>
                 <?php endif; ?>
+                
                 <tr>
                     <th>결승타</th>
-                    <td><?php 
-                        if (isset($match['winning_hit']) && $match['winning_hit']) {
-                            echo htmlspecialchars($match['winning_hit']);
-                        } elseif ($columnExists && isset($match['game_winning_hit']) && $match['game_winning_hit']) {
-                            echo htmlspecialchars($match['game_winning_hit']);
-                        } else {
-                            echo '<span style="color: #999; font-style: italic;">정보 없음</span>';
-                        }
-                    ?></td>
+                    <td><?php echo $match['winning_hit'] ? htmlspecialchars($match['winning_hit']) : '<span style="color:#999; font-style:italic;">정보 없음</span>'; ?></td>
                 </tr>
-                <?php if (isset($match['mvp']) && $match['mvp']): ?>
+                
+                <?php if ($match['mvp']): ?>
                 <tr>
                     <th>MVP</th>
                     <td><?php echo htmlspecialchars($match['mvp']); ?></td>
@@ -274,8 +192,7 @@ include '../includes/header.php';
         <?php endif; ?>
     </div>
 
-    <!-- 팀별 성적 비교 -->
-    <?php if ($status['status'] === 'finished'): ?>
+    <?php if ($statusInfo['status'] === 'finished'): ?>
     <div class="team-stats-comparison">
         <h3>팀별 성적 비교</h3>
         <div class="team-stats-grid">
@@ -284,43 +201,22 @@ include '../includes/header.php';
                 <div class="stat-items">
                     <div class="stat-item">
                         <span class="stat-label">팀 타율</span>
-                        <span class="stat-value">
-                            <?php 
-                            if ($homeTeamStats && isset($homeTeamStats['team_batting_avg']) && $homeTeamStats['team_batting_avg'] !== null) {
-                                echo htmlspecialchars($homeTeamStats['team_batting_avg']);
-                            } else {
-                                echo '-';
-                            }
-                            ?>
-                        </span>
+                        <span class="stat-value"><?php echo $homeStats['avg_batting'] ?? '-'; ?></span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">도루 성공률</span>
                         <span class="stat-value">
-                            <?php 
-                            if ($homeTeamStats && isset($homeTeamStats['steal_success_rate']) && $homeTeamStats['steal_success_rate'] !== null) {
-                                $rate = (float)$homeTeamStats['steal_success_rate'];
-                                if ($rate > 0) {
-                                    echo number_format($rate, 1) . '%';
-                                } else {
-                                    echo '-';
-                                }
-                            } else {
-                                echo '-';
-                            }
-                            ?>
+                            <?php echo isset($homeStats['stolen_base_success_rate']) 
+                                ? number_format((float)str_replace('%', '', $homeStats['stolen_base_success_rate']), 1) . '%' 
+                                : '-'; ?>
                         </span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">도루 성공</span>
                         <span class="stat-value">
-                            <?php 
-                            if ($homeTeamStats && isset($homeTeamStats['total_stolen_bases']) && $homeTeamStats['total_stolen_bases'] > 0) {
-                                echo number_format($homeTeamStats['total_stolen_bases']) . '회';
-                            } else {
-                                echo '-';
-                            }
-                            ?>
+                            <?php echo !empty($homeStats['total_stolen_bases']) 
+                                ? number_format($homeStats['total_stolen_bases']) . '회' 
+                                : '-'; ?>
                         </span>
                     </div>
                 </div>
@@ -331,43 +227,22 @@ include '../includes/header.php';
                 <div class="stat-items">
                     <div class="stat-item">
                         <span class="stat-label">팀 타율</span>
-                        <span class="stat-value">
-                            <?php 
-                            if ($awayTeamStats && isset($awayTeamStats['team_batting_avg']) && $awayTeamStats['team_batting_avg'] !== null) {
-                                echo htmlspecialchars($awayTeamStats['team_batting_avg']);
-                            } else {
-                                echo '-';
-                            }
-                            ?>
-                        </span>
+                        <span class="stat-value"><?php echo $awayStats['avg_batting'] ?? '-'; ?></span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">도루 성공률</span>
                         <span class="stat-value">
-                            <?php 
-                            if ($awayTeamStats && isset($awayTeamStats['steal_success_rate']) && $awayTeamStats['steal_success_rate'] !== null) {
-                                $rate = (float)$awayTeamStats['steal_success_rate'];
-                                if ($rate > 0) {
-                                    echo number_format($rate, 1) . '%';
-                                } else {
-                                    echo '-';
-                                }
-                            } else {
-                                echo '-';
-                            }
-                            ?>
+                            <?php echo isset($awayStats['stolen_base_success_rate']) 
+                                ? number_format((float)str_replace('%', '', $awayStats['stolen_base_success_rate']), 1) . '%' 
+                                : '-'; ?>
                         </span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">도루 성공</span>
                         <span class="stat-value">
-                            <?php 
-                            if ($awayTeamStats && isset($awayTeamStats['total_stolen_bases']) && $awayTeamStats['total_stolen_bases'] > 0) {
-                                echo number_format($awayTeamStats['total_stolen_bases']) . '회';
-                            } else {
-                                echo '-';
-                            }
-                            ?>
+                            <?php echo !empty($awayStats['total_stolen_bases']) 
+                                ? number_format($awayStats['total_stolen_bases']) . '회' 
+                                : '-'; ?>
                         </span>
                     </div>
                 </div>
@@ -381,22 +256,7 @@ include '../includes/header.php';
     </div>
     <?php endif; ?>
 
-    <!-- 댓글 섹션 -->
-    <?php 
-    $_GET['match_id'] = $matchId;
-    include 'comments.php';
-    ?>
-
-    <div class="action-buttons">
-        <?php if (!empty($match['stadium_id'])): ?>
-        <a href="stadiums.php?id=<?php echo $match['stadium_id']; ?>" class="btn">경기장 정보</a>
-        <?php endif; ?>
-        <a href="matches.php" class="btn btn-secondary">목록으로</a>
-    </div>
+    <?php include 'comments.php'; ?>
 </div>
 
-
 <?php include '../includes/footer.php'; ?>
-
-
-

@@ -1,29 +1,27 @@
 <!-- 팀 상세 페이지 -->
  
-
 <?php
+require_once '../config/config.php';
 require_once '../config/database.php';
 require_once '../helpers/api_helper.php';
 $db = getDB();
 
 $pageTitle = "KBO 팀 상세";
 
-$teamId = $_GET['id'] ?? 0;
-
+// ID 검증
+$teamId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if (!$teamId) {
     header('Location: teams.php');
     exit;
 }
 
 $teamData = null;
-$apiBaseUrl = getApiBaseUrl(3);
-$result = callApi($apiBaseUrl . '/teams/detail.php?team_id=' . urlencode($teamId));
+$apiBaseUrl = getApiBaseUrl();
+$result = callApi($apiBaseUrl . '/teams/detail.php?team_id=' . $teamId);
 
 if ($result['success']) {
-    $detailData = json_decode($result['response'], true);
-    if (isset($detailData['data']) && $detailData['data'] !== null) {
-        $teamData = $detailData['data'];
-    }
+    $json = json_decode($result['response'], true);
+    $teamData = $json['data'] ?? null;
 }
 
 if (!$teamData) {

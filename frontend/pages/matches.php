@@ -1,6 +1,7 @@
 <!-- 경기 조회 페이지 -->
 
 <?php
+require_once '../config/config.php';
 require_once '../config/database.php';
 require_once '../helpers/match_helper.php';
 require_once '../helpers/api_helper.php';
@@ -8,74 +9,73 @@ $db = getDB();
 
 $pageTitle = "KBO 야구 경기 일정";
 
-$regionFilter = $_GET['region'] ?? '';
+// 필터링
+$regionFilter = filter_input(INPUT_GET, 'region', FILTER_VALIDATE_INT);
 $monthFilter = $_GET['month'] ?? date('Y-m');
 
-$matches = [];
-$apiBaseUrl = getApiBaseUrl(3);
-$baseApiUrl = $apiBaseUrl . '/matches/list.php';
-
-$stadiumsMap = [];
-$stadiumsQuery = "SELECT s.name, r.name as region_name, r.id as region_id 
-                  FROM stadiums s 
-                  JOIN regions r ON s.region_id = r.id";
-$stadiumsList = $db->query($stadiumsQuery)->fetchAll();
-foreach ($stadiumsList as $stadium) {
-    $stadiumsMap[$stadium['name']] = [
-        'region_name' => $stadium['region_name'],
-        'region_id' => $stadium['region_id']
-    ];
+// 경기장/지역 정보 미리 로드
+$stadiumMap = [];
+$stmt = $db->query("SELECT s.name, r.name as region_name, r.id as region_id FROM stadiums s JOIN regions r ON s.region_id = r.id");
+while ($row = $stmt->fetch()) {
+    $stadiumMap[$row['name']] = $row;
 }
 
+// 날짜 범위 계산
 $startDate = date('Y-m-01', strtotime($monthFilter . '-01'));
 $endDate = date('Y-m-t', strtotime($monthFilter . '-01'));
 
-// 선택한 월의 모든 날짜에 대해 API 호출 (일별 필터링)
+$matches = [];
+$apiBaseUrl = getApiBaseUrl(); 
 $currentDate = $startDate;
+
+// 일별 필터링 
 while ($currentDate <= $endDate) {
-    $apiUrl = $baseApiUrl . '?date=' . urlencode($currentDate);
+    $url = $apiBaseUrl . '/matches/list.php?date=' . urlencode($currentDate);
     if ($regionFilter) {
-        $apiUrl .= '&region_id=' . urlencode($regionFilter);
+        $url .= '&region_id=' . $regionFilter;
     }
     
-    $result = callApi($apiUrl, 10);
+    // 타임아웃
+    $result = callApi($url, 1); 
     
     if ($result['success']) {
-        $apiData = json_decode($result['response'], true);
-        if ($apiData !== null && isset($apiData['data']) && is_array($apiData['data'])) {
-            foreach ($apiData['data'] as $match) {
-                // API 응답을 프론트엔드 형식으로 변환
-                $match['match_date'] = $match['date'] ?? $currentDate;
-                $match['match_time'] = $match['time'] ?? '';
-                $match['id'] = $match['match_id'] ?? '';
-                $match['stadium_name'] = $match['stadium'] ?? '';
-                
-                // 경기장명으로 지역 정보 매핑
-                if (!empty($match['stadium_name']) && isset($stadiumsMap[$match['stadium_name']])) {
-                    $match['region_name'] = $stadiumsMap[$match['stadium_name']]['region_name'];
-                } else {
-                    $match['region_name'] = '';
-                }
-                
-                $matches[] = $match;
-            }
+        $json = json_decode($result['response'], true);
+        $list = $json['data'] ?? [];
+
+        foreach ($list as $item) {
+            // API 데이터에 DB의 지역 정보 매핑
+            $stadiumName = $item['stadium'] ?? '';
+            $regionInfo = $stadiumMap[$stadiumName] ?? ['region_name' => '', 'region_id' => 0];
+            $matches[] = [
+                'id' => $item['match_id'],
+                'date' => $item['date'] ?? $currentDate,
+                'time' => $item['time'] ?? '',
+                'home_team' => $item['home_team'] ?? '',
+                'home_score' => $item['home_score'] ?? null,
+                'away_team' => $item['away_team'] ?? '',
+                'away_score' => $item['away_score'] ?? null,
+                'stadium_name' => $stadiumName,
+                'region_name' => $regionInfo['region_name'],
+                'attendance' => null // 리스트 API에는 관중 정보 없음
+            ];
         }
     }
     
+    // 하루 증가
     $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
 }
 
-// 경기목록 : 날짜 내림차순, 시간 오름차순 정렬
+// 정렬 (내림차순)
 usort($matches, function($a, $b) {
-    $dateCompare = strcmp($b['match_date'], $a['match_date']);
-    if ($dateCompare !== 0) {
-        return $dateCompare;
+    if ($a['date'] === $b['date']) {
+        return strcmp($a['time'], $b['time']);
     }
-    return strcmp($a['match_time'], $b['match_time']);
+    return strcmp($b['date'], $a['date']);
 });
 
+// 지역 필터 목록 (DB)
 $regions = $db->query("SELECT * FROM regions ORDER BY name")->fetchAll();
-
+    
 include '../includes/header.php';
 ?>
 
@@ -115,7 +115,7 @@ include '../includes/header.php';
             <?php 
             $currentDate = '';
             foreach ($matches as $match): 
-                $matchDate = $match['match_date'];
+                $matchDate = $match['date'] ?? '';
                 if ($currentDate !== $matchDate):
                     $currentDate = $matchDate;
                     $dateStr = date('Y년 m월 d일 (D)', strtotime($matchDate));
@@ -131,7 +131,9 @@ include '../includes/header.php';
                     <?php endif; ?>
                     <?php 
                     date_default_timezone_set('Asia/Seoul');
-                    $status = getMatchStatus($match['match_date'], $match['match_time']);
+                    $matchDate = $match['date'] ?? '';
+                    $matchTime = $match['time'] ?? '';
+                    $status = getMatchStatus($matchDate, $matchTime);
                     $statusLabel = $status['label'];
                     $statusClass = $status['class'];
                     ?>
