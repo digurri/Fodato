@@ -16,6 +16,10 @@ body {
   background-color: #f5f5f5;
 }
 
+.title-spacing {
+    margin-bottom: 12px;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -202,7 +206,7 @@ header {
 }
 
 .match-time {
-  font-size: 1.5rem;
+  font-size: 2.0rem;
   font-weight: bold;
   color: #667eea;
   text-align: center;
@@ -318,13 +322,9 @@ header {
   border: none;
   cursor: pointer;
   font-size: 0.9rem;
+  align-self: center;
 }
 
-/* 상세보기 버튼은 카드 아래 가운데 */
-.stadium-card .btn-detail {
-    align-self: center;
-    margin-top: 12px;
-}
 
 .btn:hover,
 .btn-detail:hover {
