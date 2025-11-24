@@ -25,7 +25,7 @@ function getMatchStatus($matchDate, $matchTime = '00:00:00') {
 
     return [
         'status' => 'finished',
-        'lable' => '완료',
+        'label' => '완료',
         'class' => 'status-finished'
     ];
 
