@@ -1,8 +1,11 @@
 <!-- 종목별 경기 일정 페이지 -->
 
 <?php 
+require_once '../config/config.php';
 require_once '../config/database.php';
 require_once '../helpers/match_helper.php';
+require_once '../helpers/api_helper.php';
+
 $db = getDB();
 
 $pageTitle = "KBO 야구";

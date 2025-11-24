@@ -1,7 +1,7 @@
     </main>
     <footer>
         <div class="container">
-            <p>&copy; ©Fodato</p>
+            <p>&copy;Fodato</p>
         </div>
     </footer>
 </body>

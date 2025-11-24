@@ -1,14 +1,13 @@
-<!-- 댓글 작성 페이지 -->
-
-
+<!-- 댓글  -->
+ 
 <?php
-date_default_timezone_set('Asia/Seoul');
 
-$matchId = $_GET['match_id'] ?? 0;
-if (!$matchId) {
-    return;
+if (!isset($matchId)) {
+    $matchId = $_GET['match_id'] ?? 0;
 }
+if (!$matchId) return;
 
+// DB 연결
 if (!isset($db)) {
     require_once '../config/database.php';
     $db = getDB();
@@ -17,176 +16,129 @@ if (!isset($db)) {
 require_once '../helpers/api_helper.php';
 
 $comments = [];
-$apiBaseUrl = getApiBaseUrl(3);
-$result = callApi($apiBaseUrl . '/comments/list.php?match_id=' . urlencode($matchId));
+$apiBaseUrl = getApiBaseUrl(); 
+$result = callApi($apiBaseUrl . '/comments/list.php?match_id=' . $matchId);
 
 if ($result['success']) {
-    $commentsData = json_decode($result['response'], true);
-    
-    if (isset($commentsData['data']) && is_array($commentsData['data'])) {
-        foreach ($commentsData['data'] as $comment) {
-            $comments[] = [
-                'id' => $comment['comment_id'],
-                'comment_id' => $comment['comment_id'],
-                'content' => $comment['content'],
-                'created_at' => $comment['created_at'],
-                'updated_at' => $comment['created_at'],
-                'user_token' => '',
-                'supporting_team_name' => $comment['team_name'] ?? null,
-                'supporting_player_name' => $comment['player_name'] ?? null,
-                'supporting_player_number' => null,
-            ];
-        }
-    }
+    $json = json_decode($result['response'], true);
+    $comments = $json['data'] ?? [];
 }
-$matchTeamsQuery = "
+
+// 팀 조회 
+$stmt = $db->prepare("
     SELECT DISTINCT t.id, t.name
     FROM teams t
     JOIN matches m ON (t.id = m.home_team_id OR t.id = m.away_team_id)
-    WHERE m.id = :match_id
+    WHERE m.id = ?
     ORDER BY t.name
-";
-$matchTeamsStmt = $db->prepare($matchTeamsQuery);
-$matchTeamsStmt->execute([':match_id' => $matchId]);
-$matchTeams = $matchTeamsStmt->fetchAll();
+");
+$stmt->execute([$matchId]);
+$matchTeams = $stmt->fetchAll();
 
-$matchPlayersQuery = "
+// 선수 조회
+$stmt = $db->prepare("
     SELECT p.id, p.name, p.position, t.id as team_id, t.name as team_name
     FROM players p
     JOIN teams t ON p.team_id = t.id
     JOIN matches m ON (t.id = m.home_team_id OR t.id = m.away_team_id)
-    WHERE m.id = :match_id
+    WHERE m.id = ?
     ORDER BY t.name, p.position, p.name
-";
-$matchPlayersStmt = $db->prepare($matchPlayersQuery);
-$matchPlayersStmt->execute([':match_id' => $matchId]);
-$matchPlayers = $matchPlayersStmt->fetchAll();
+");
+$stmt->execute([$matchId]);
+$matchPlayers = $stmt->fetchAll();
 ?>
 
 <div class="comments-section">
     <h4>댓글 (<?php echo count($comments); ?>)</h4>
     
     <div class="comment-form">
-        <form id="commentForm" onsubmit="return submitComment(event)">
+        <form id="commentForm" onsubmit="return handleCommentSubmit(event)">
             <input type="hidden" name="match_id" id="comment_match_id" value="<?php echo $matchId; ?>">
             
             <div class="form-group">
-                <label for="supporting_team">응원 팀 선택</label>
-                <select name="supporting_team_id" id="supporting_team" onchange="updatePlayerList()">
+                <label for="supporting_team">응원 팀</label>
+                <select name="supporting_team_id" id="supporting_team" onchange="filterPlayersByTeam()" style="width: 100% !important; padding: 12px 16px !important; border: 2px solid #dee2e6 !important; border-radius: 8px !important; font-size: 0.95rem !important; font-family: inherit !important; transition: all 0.3s ease !important; background: #ffffff !important; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important; color: #212529 !important; appearance: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; cursor: pointer !important; background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E\") !important; background-repeat: no-repeat !important; background-position: right 16px center !important; padding-right: 40px !important;">
                     <option value="">선택 안 함</option>
                     <?php foreach ($matchTeams as $team): ?>
                         <option value="<?php echo $team['id']; ?>"><?php echo htmlspecialchars($team['name']); ?></option>
                     <?php endforeach; ?>
-                    <option value="0">기타</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="supporting_player">응원 선수 선택</label>
-                <select name="supporting_player_id" id="supporting_player">
+                <label for="supporting_player">응원 선수</label>
+                <select name="supporting_player_id" id="supporting_player" style="width: 100% !important; padding: 12px 16px !important; border: 2px solid #dee2e6 !important; border-radius: 8px !important; font-size: 0.95rem !important; font-family: inherit !important; transition: all 0.3s ease !important; background: #ffffff !important; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important; color: #212529 !important; appearance: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; cursor: pointer !important; background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E\") !important; background-repeat: no-repeat !important; background-position: right 16px center !important; padding-right: 40px !important;">
                     <option value="">선택 안 함</option>
                     <?php 
-                    // 선수 목록을 팀별로 묶어서 출력
-                    $currentTeamId = null;
-                    foreach ($matchPlayers as $player): 
-                        if ($currentTeamId !== $player['team_id']):
-                            if ($currentTeamId !== null):
-                                echo '</optgroup>';
-                            endif;
-                            echo '<optgroup label="' . htmlspecialchars($player['team_name']) . '">';
-                            $currentTeamId = $player['team_id'];
+                    $lastTeamId = null;
+                    foreach ($matchPlayers as $p): 
+                        if ($lastTeamId !== $p['team_id']):
+                            if ($lastTeamId !== null) echo '</optgroup>';
+                            echo '<optgroup label="' . htmlspecialchars($p['team_name']) . '">';
+                            $lastTeamId = $p['team_id'];
                         endif;
                     ?>
-                        <option value="<?php echo $player['id']; ?>" data-team-id="<?php echo $player['team_id']; ?>">
-                            <?php 
-                            echo htmlspecialchars($player['name']);
-                            if (isset($player['position']) && $player['position']) {
-                                echo ' (' . htmlspecialchars($player['position']) . ')';
-                            }
-                            ?>
+                        <option value="<?php echo $p['id']; ?>" data-team-id="<?php echo $p['team_id']; ?>">
+                            <?php echo htmlspecialchars($p['name']); ?> 
+                            <?php echo $p['position'] ? '('.$p['position'].')' : ''; ?>
                         </option>
-                    <?php 
-                    endforeach;
-                    if ($currentTeamId !== null):
-                        echo '</optgroup>';
-                    endif;
-                    ?>
+                    <?php endforeach; ?>
+                    <?php if ($lastTeamId !== null) echo '</optgroup>'; ?>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="content">의견 입력</label>
-                <textarea name="content" id="content" rows="5" required placeholder="경기에 대한 의견을 자유롭게 남겨주세요..."></textarea>
+                <textarea name="content" id="content" rows="3" required placeholder="응원 한마디를 남겨주세요!"></textarea>
             </div>
             
-            <button type="submit" class="btn btn-primary">등록하기</button>
+            <button type="submit" class="btn btn-primary">등록</button>
         </form>
     </div>
     
     <div class="comments-list">
         <?php if (empty($comments)): ?>
-            <p class="no-data">데이터 없음</p>
+            <p class="no-data">첫 번째 댓글을 남겨보세요!</p>
         <?php else: ?>
-            <?php foreach ($comments as $comment): ?>
-                <?php 
-                $commentCreatedAt = $comment['created_at'] ?? '';
-                $commentDate = '';
-                $today = date('Y-m-d');
-                
-                if (!empty($commentCreatedAt)) {
-                    if (strlen($commentCreatedAt) >= 10) {
-                        $commentDate = substr($commentCreatedAt, 0, 10);
-                    } else {
-                        $timestamp = strtotime($commentCreatedAt);
-                        if ($timestamp !== false) {
-                            $commentDate = date('Y-m-d', $timestamp);
-                        }
-                    }
-                }
-                
-                // 오늘 작성한 댓글만 수정/삭제 가능 -> 버튼 표시로 제한
-                $canEdit = false;
-                if (!empty($commentDate)) {
-                    $canEdit = ($commentDate === $today);
-                }
-                ?>
-                <div class="comment-item" data-comment-id="<?php echo $comment['id']; ?>" data-comment-date="<?php echo htmlspecialchars($commentDate); ?>" data-today="<?php echo htmlspecialchars($today); ?>">
+            <?php 
+            $today = date('Y-m-d');
+            foreach ($comments as $c): 
+                $cDate = substr($c['created_at'], 0, 10);
+                $canEdit = ($cDate === $today);
+    
+                $teamName = $c['team_name'] ?? '';
+                $playerName = $c['player_name'] ?? '';
+            ?>
+                <div class="comment-item" id="comment-row-<?php echo $c['comment_id']; ?>">
                     <div class="comment-header">
-                        <div class="comment-author-info">
-                            <strong class="comment-nickname">익명</strong>
-                            <?php if ($comment['supporting_team_name']): ?>
-                                <span class="supporting-badge team-badge">응원: <?php echo htmlspecialchars($comment['supporting_team_name']); ?></span>
+                        <div class="info">
+                            <strong>익명</strong>
+                            <?php if ($teamName): ?>
+                                <span class="badge team" style="display: inline-block; padding: 5px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: 600; margin-left: 8px; white-space: nowrap; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);"><?php echo htmlspecialchars($teamName); ?></span>
                             <?php endif; ?>
-                            <?php if ($comment['supporting_player_name']): ?>
-                                <span class="supporting-badge player-badge">
-                                    선수: <?php echo htmlspecialchars($comment['supporting_player_name']); ?>
-                                </span>
+                            <?php if ($playerName): ?>
+                                <span class="badge player" style="display: inline-block; padding: 5px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: 600; margin-left: 8px; white-space: nowrap; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; box-shadow: 0 2px 6px rgba(245, 87, 108, 0.3);"><?php echo htmlspecialchars($playerName); ?></span>
                             <?php endif; ?>
                         </div>
-                        <span class="comment-date">
-                            <?php echo date('Y-m-d H:i', strtotime($comment['created_at'])); ?>
-                        </span>
+                        <span class="date"><?php echo substr($c['created_at'], 0, 16); ?></span>
+                        
                         <?php if ($canEdit): ?>
-                            <div class="comment-actions">
-                                <button type="button" class="btn-edit" onclick="editComment(<?php echo $comment['id']; ?>, '<?php echo htmlspecialchars(addslashes($comment['content'])); ?>')">수정</button>
-                                <button type="button" class="btn-delete" onclick="deleteComment(<?php echo $comment['id']; ?>)">삭제</button>
+                            <div class="actions" style="display: flex; gap: 8px;">
+                                <button type="button" onclick="toggleEditMode(<?php echo $c['comment_id']; ?>)" style="padding: 6px 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.3s; box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3);">수정</button>
+                                <button type="button" onclick="deleteComment(<?php echo $c['comment_id']; ?>)" style="padding: 6px 14px; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.3s; box-shadow: 0 2px 5px rgba(220, 53, 69, 0.3);">삭제</button>
                             </div>
                         <?php endif; ?>
                     </div>
-                    <div class="comment-content" id="comment-content-<?php echo $comment['id']; ?>">
-                        <?php echo nl2br(htmlspecialchars($comment['content'])); ?>
+                    
+                    <div class="comment-body" id="view-<?php echo $c['comment_id']; ?>">
+                        <?php echo nl2br(htmlspecialchars($c['content'])); ?>
                     </div>
-                    <div class="comment-edit-form" id="edit-form-<?php echo $comment['id']; ?>" style="display: none;">
-                        <form onsubmit="return updateComment(event, <?php echo $comment['id']; ?>)">
-                            <div class="form-group">
-                                <label for="edit-content-<?php echo $comment['id']; ?>">댓글 내용</label>
-                                <textarea name="content" id="edit-content-<?php echo $comment['id']; ?>" rows="4" required><?php echo htmlspecialchars($comment['content']); ?></textarea>
-                            </div>
-                            <div class="edit-form-actions">
-                                <button type="submit" class="btn-save">저장</button>
-                                <button type="button" class="btn-cancel" onclick="cancelEdit(<?php echo $comment['id']; ?>)">취소</button>
-                            </div>
-                        </form>
+
+                    <div class="comment-edit" id="edit-<?php echo $c['comment_id']; ?>" style="display:none;">
+                        <textarea id="input-<?php echo $c['comment_id']; ?>" rows="3" style="width: 100%; padding: 10px 15px; border: 2px solid #dee2e6; border-radius: 8px; font-size: 0.95rem; font-family: inherit; transition: all 0.3s; background: white; margin-bottom: 10px;"><?php echo htmlspecialchars($c['content']); ?></textarea>
+                        <div class="edit-btns" style="display: flex; gap: 10px;">
+                            <button onclick="updateCommentAction(<?php echo $c['comment_id']; ?>)" style="padding: 8px 20px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.3s; box-shadow: 0 2px 5px rgba(40, 167, 69, 0.3);">저장</button>
+                            <button onclick="toggleEditMode(<?php echo $c['comment_id']; ?>)" style="padding: 8px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.3s; box-shadow: 0 2px 5px rgba(108, 117, 125, 0.3);">취소</button>
+                        </div>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -194,180 +146,138 @@ $matchPlayers = $matchPlayersStmt->fetchAll();
     </div>
 </div>
 
+<style>
+.comment-actions button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4) !important;
+}
+.comment-actions button[onclick*="toggleEditMode"]:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
+}
+.comment-actions button[onclick*="deleteComment"]:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%) !important;
+}
+.edit-btns button[onclick*="updateCommentAction"]:hover {
+    background: linear-gradient(135deg, #20c997 0%, #28a745 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4) !important;
+}
+.edit-btns button[onclick*="toggleEditMode"]:hover {
+    background: #5a6268 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.4) !important;
+}
+#supporting_team:focus,
+#supporting_player:focus {
+    outline: none !important;
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 5px rgba(102, 126, 234, 0.15), 0 6px 20px rgba(102, 126, 234, 0.12) !important;
+    transform: translateY(-2px) !important;
+    background-color: #fafbff !important;
+}
+#supporting_team:hover,
+#supporting_player:hover {
+    border-color: #adb5bd !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08) !important;
+}
+</style>
+
 <script>
-const apiBaseUrl = '<?php echo getApiBaseUrl(3) . "/comments"; ?>';
-
-function submitComment(event) {
-    event.preventDefault();
+//  API 호출 공통 함수
+async function sendApiRequest(endpoint, method, data = null) {
+    const apiBase = '<?php echo getApiBaseUrl() . "/comments"; ?>'; 
     
-    const form = document.getElementById('commentForm');
-    const matchId = document.getElementById('comment_match_id').value;
+    try {
+        const options = {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include'
+        };
+        if (data) options.body = JSON.stringify(data);
+
+        const response = await fetch(apiBase + endpoint, options);
+        const result = await response.json();
+
+        // 성공 메시지가 있으면 알림
+        if (result.message && method !== 'GET') {
+            alert(result.message);
+        }
+        return result;
+    } catch (error) {
+        console.error(error);
+        alert('처리 중 오류가 발생했습니다.');
+        return null;
+    }
+}
+
+// 2. 댓글 등록
+async function handleCommentSubmit(e) {
+    e.preventDefault();
     const content = document.getElementById('content').value.trim();
-    const teamId = document.getElementById('supporting_team').value || null;
-    const playerId = document.getElementById('supporting_player').value || null;
-    
-    if (!content) {
-        alert('댓글 내용을 입력해주세요.');
-        return false;
-    }
-    
+    if (!content) return alert('내용을 입력해주세요.');
+
     const data = {
-        match_id: parseInt(matchId),
+        match_id: document.getElementById('comment_match_id').value,
         content: content,
-        team_id: teamId ? parseInt(teamId) : null,
-        player_id: playerId ? parseInt(playerId) : null
+        team_id: document.getElementById('supporting_team').value || null,
+        player_id: document.getElementById('supporting_player').value || null
     };
-    
-    fetch(apiBaseUrl + '/create.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(result => {
-        if (result.message) {
-            alert(result.message);
-            if (result.message.includes('등록되었습니다')) {
-                location.reload();
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('댓글 등록 중 오류가 발생했습니다.');
-    });
-    
-    return false;
+
+    const res = await sendApiRequest('/create.php', 'POST', data);
+    if (res && res.message && res.message.includes('등록')) location.reload();
 }
 
-function updateComment(event, commentId) {
-    event.preventDefault();
-    
-    const content = document.getElementById('edit-content-' + commentId).value.trim();
-    
-    if (!content) {
-        alert('댓글 내용을 입력해주세요.');
-        return false;
-    }
-    
-    const data = {
-        comment_id: parseInt(commentId),
-        content: content
-    };
-    
-    fetch(apiBaseUrl + '/update.php', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(result => {
-        if (result.message) {
-            alert(result.message);
-            if (result.message.includes('수정되었습니다')) {
-                location.reload();
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('댓글 수정 중 오류가 발생했습니다.');
-    });
-    
-    return false;
+// 3. 댓글 수정
+async function updateCommentAction(id) {
+    const content = document.getElementById('input-' + id).value.trim();
+    if (!content) return alert('내용을 입력해주세요.');
+
+    const res = await sendApiRequest('/update.php', 'PUT', { comment_id: id, content: content });
+    if (res && res.message && res.message.includes('수정')) location.reload();
 }
 
-function deleteComment(commentId) {
-    if (!confirm('댓글을 삭제하시겠습니까?')) {
-        return;
-    }
+// 4. 댓글 삭제
+async function deleteComment(id) {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
     
-    const data = {
-        comment_id: parseInt(commentId)
-    };
+    const res = await sendApiRequest('/delete.php', 'DELETE', { comment_id: id });
+    if (res && res.message && res.message.includes('삭제')) location.reload();
+}
+
+// UI: 수정 모드 토글
+function toggleEditMode(id) {
+    const viewDiv = document.getElementById('view-' + id);
+    const editDiv = document.getElementById('edit-' + id);
+    const isEditing = editDiv.style.display === 'block';
     
-    fetch(apiBaseUrl + '/delete.php', {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(result => {
-        if (result.message) {
-            alert(result.message);
-            if (result.message.includes('삭제되었습니다')) {
-                location.reload();
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('댓글 삭제 중 오류가 발생했습니다.');
-    });
+    viewDiv.style.display = isEditing ? 'block' : 'none';
+    editDiv.style.display = isEditing ? 'none' : 'block';
 }
 
-function editComment(commentId, content) {
-    document.getElementById('comment-content-' + commentId).style.display = 'none';
-    document.getElementById('edit-form-' + commentId).style.display = 'block';
-    const commentItem = document.querySelector('[data-comment-id="' + commentId + '"]');
-    const actions = commentItem.querySelector('.comment-actions');
-    if (actions) {
-        actions.style.display = 'none';
-    }
-}
-
-function cancelEdit(commentId) {
-    document.getElementById('edit-form-' + commentId).style.display = 'none';
-    document.getElementById('comment-content-' + commentId).style.display = 'block';
-    const commentItem = document.querySelector('[data-comment-id="' + commentId + '"]');
-    const actions = commentItem.querySelector('.comment-actions');
-    if (actions) {
-        actions.style.display = 'block';
-    }
-}
-
-function updatePlayerList() {
-    const teamSelect = document.getElementById('supporting_team');
+// UI: 팀 선택 시 선수 필터링
+function filterPlayersByTeam() {
+    const teamId = document.getElementById('supporting_team').value;
     const playerSelect = document.getElementById('supporting_player');
-    const selectedTeamId = teamSelect.value;
-    
-    for (let i = 0; i < playerSelect.options.length; i++) {
-        const option = playerSelect.options[i];
-        const teamId = option.getAttribute('data-team-id');
-        
-        if (option.value === '' || selectedTeamId === '' || selectedTeamId === '0') {
-            option.style.display = '';
-        } else if (teamId === selectedTeamId) {
-            option.style.display = '';
+    const options = playerSelect.querySelectorAll('option');
+    const groups = playerSelect.querySelectorAll('optgroup');
+
+    options.forEach(opt => {
+        const pTeam = opt.getAttribute('data-team-id');
+        if (!teamId || teamId === '0' || !pTeam || pTeam === teamId) {
+            opt.style.display = '';
         } else {
-            option.style.display = 'none';
-        }
-    }
-    
-    const optgroups = playerSelect.querySelectorAll('optgroup');
-    optgroups.forEach(optgroup => {
-        if (selectedTeamId === '' || selectedTeamId === '0') {
-            optgroup.style.display = '';
-        } else {
-            const firstOption = optgroup.querySelector('option');
-            if (firstOption && firstOption.getAttribute('data-team-id') === selectedTeamId) {
-                optgroup.style.display = '';
-            } else {
-                optgroup.style.display = 'none';
-            }
+            opt.style.display = 'none';
         }
     });
-    
-    playerSelect.value = '';
+
+    groups.forEach(group => {
+        if (!teamId || teamId === '0') {
+            group.style.display = '';
+        } else {
+            const firstOpt = group.querySelector('option');
+            group.style.display = (firstOpt && firstOpt.getAttribute('data-team-id') === teamId) ? '' : 'none';
+        }
+    });
+    playerSelect.value = ''; 
 }
 </script>
-

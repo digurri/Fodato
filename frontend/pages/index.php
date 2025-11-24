@@ -2,81 +2,38 @@
 
 <?php
 require_once '../config/database.php';
+require_once '../config/config.php';
 require_once '../helpers/match_helper.php';
 require_once '../helpers/api_helper.php';
+
 $db = getDB();
 
 $pageTitle = "홈";
 
 $todayMatches = [];
-$apiBaseUrl = getApiBaseUrl(3);
-$result = callApi($apiBaseUrl . '/matches/today.php', 10);
+$apiBaseUrl = getApiBaseUrl();
+$result = callApi($apiBaseUrl . '/matches/today.php', 2);
 
 if ($result['success']) {
-    $apiData = json_decode($result['response'], true);
-    if (isset($apiData['data']) && is_array($apiData['data'])) {
-        $todayMatches = $apiData['data'];
-    }
-} else {
-    // API 호출이 실패하면 DB에서 직접 조회하도록 처리
-    try {
-        $todayMatchesQuery = "
-            SELECT 
-                m.id AS match_id,
-                m.time,
-                m.status,
-                IFNULL(ms.home_score, 0) AS home_score,
-                IFNULL(ms.away_score, 0) AS away_score,
-                ht.name AS home_team_name,
-                at.name AS away_team_name,
-                s.name AS stadium_name
-            FROM matches m
-            LEFT JOIN teams ht ON m.home_team_id = ht.id
-            LEFT JOIN teams at ON m.away_team_id = at.id
-            LEFT JOIN stadiums s ON m.stadium_id = s.id
-            LEFT JOIN match_stat ms ON m.id = ms.match_id
-            WHERE m.date = CURDATE()
-            ORDER BY m.time ASC
-        ";
-        $todayMatchesStmt = $db->query($todayMatchesQuery);
-        $todayMatches = $todayMatchesStmt->fetchAll();
-    } catch (PDOException $e) {
-        $todayMatches = [];
-    }
+    $json = json_decode($result['response'], true);
+    $todayMatches = $json['data'] ?? [];
 }
 
 $regionStats = [];
-$result = callApi($apiBaseUrl . '/matches/analytics.php', 10);
+$analyticsResult = callApi($apiBaseUrl . '/matches/analytics.php', 2);
 
-if ($result['success']) {
-    $analyticsData = json_decode($result['response'], true);
-    if (isset($analyticsData['data']) && is_array($analyticsData['data'])) {
-        // ROLLUP 결과에 포함된 'Total' 값은 제외
-        $regionStats = array_filter($analyticsData['data'], function($item) {
-            return $item['region_name'] !== 'Total';
-        });
-    }
-} else {
-    // API 호출이 실패하면 DB에서 직접 조회하도록 처리
-    $regionStatsQuery = "
-        SELECT 
-            r.name as region_name,
-            COUNT(*) as match_count
-        FROM matches m
-        JOIN stadiums s ON m.stadium_id = s.id
-        JOIN regions r ON s.region_id = r.id
-        WHERE m.date = CURDATE()
-        GROUP BY r.id, r.name
-        ORDER BY match_count DESC
-    ";
-    $regionStats = $db->query($regionStatsQuery)->fetchAll();
+if ($analyticsResult['success']) {
+    $json = json_decode($analyticsResult['response'], true);
+    $rawStats = $json['data'] ?? [];
+
+    $regionStats = array_filter($rawStats, fn($item) => ($item['region_name'] ?? '') !== 'Total');
 }
 
-// 지역명을 ID로 매핑해서 drill-down 링크에 활용
-$regionNameToIdMap = [];
-$regionsList = $db->query("SELECT id, name FROM regions ORDER BY name")->fetchAll();
-foreach ($regionsList as $region) {
-    $regionNameToIdMap[$region['name']] = $region['id'];
+// 지역 매핑 정보
+$regionMap = [];
+$regions = $db->query("SELECT * FROM regions ORDER BY name")->fetchAll();
+foreach ($regions as $row) {
+    $regionMap[$row['name']] = $row['id'];
 }
 
 include '../includes/header.php';
@@ -101,7 +58,7 @@ include '../includes/header.php';
             <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
                 <?php foreach ($regionStats as $stat): 
                     $regionName = $stat['region_name'];
-                    $regionId = $regionNameToIdMap[$regionName] ?? null;
+                    $regionId = $regionMap[$regionName] ?? null;
                     $todayMonth = date('Y-m');
                     if ($regionId !== null):
                 ?>
