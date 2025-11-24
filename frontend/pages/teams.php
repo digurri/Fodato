@@ -32,7 +32,7 @@ if ($teamIdFilter) {
 include '../includes/header.php';
 ?>
 
-<h2>KBO 팀 목록</h2>
+<h2 class="title-spacing">KBO 팀 목록</h2>
 
 <div class="filter-section">
     <form method="GET" action="teams.php" class="filter-form">
