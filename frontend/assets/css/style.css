@@ -640,26 +640,7 @@ header {
   gap: 20px;
 }
 
-/* 팀 이름 + 지역 태그 한 줄 배치 */
-.team-header-row {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* 가운데 정렬 */
-    gap: 8px;
-}
 
-/* 팀 이름 글씨 */
-.team-header-row h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 700;
-}
-
-/* 지역 배지 조금 더 작고 깔끔하게 */
-.team-header-row .region-badge {
-    font-size: 0.85rem;
-    padding: 4px 10px;
-}
 
 .stadium-card,
 .sport-card,
@@ -669,7 +650,6 @@ header {
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s;
-  text-align: center;
 }
 
 .stadium-card:hover,
