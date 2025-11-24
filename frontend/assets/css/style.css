@@ -1449,20 +1449,17 @@ table .no-data {
 .btn-cancel {
   background: #6c757d;
   color: white;
-  border: none;
+  border: 2px solid #6b7072; /* 팔레트보다 채도를 낮춘 중성 톤 (검정 아님) */
   padding: 8px 20px;
-  border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 600;
-  transition: all 0.3s;
-  box-shadow: 0 2px 5px rgba(108, 117, 125, 0.3);
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .btn-cancel:hover {
   background: #5a6268;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(108, 117, 125, 0.4);
+  border-color: #5b6164;
 }
 
 .comment-form .btn-primary {
