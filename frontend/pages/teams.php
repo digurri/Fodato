@@ -61,8 +61,8 @@ include '../includes/header.php';
         <div class="stadiums-grid">
             <?php foreach ($displayTeams as $team): ?>
                 <div class="stadium-card">
+                    <div class="team-header-row">
                     <h3><?php echo htmlspecialchars($team['name'] ?? ''); ?></h3>
-                    <div class="stadium-badges">
                         <span class="region-badge"><?php echo htmlspecialchars($team['region'] ?? ''); ?></span>
                     </div>
                     <div class="stadium-info">
