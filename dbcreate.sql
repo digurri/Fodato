@@ -10,18 +10,6 @@ CREATE DATABASE IF NOT EXISTS team05_db DEFAULT CHARACTER SET utf8mb4 COLLATE ut
 USE team05_db;
 
 -- --------------------------------------------------------
--- 인덱스 삭제
---  ※ 완전 새로 만드는 환경(XAMPP 새 설치 + 빈 DB)에서는
---    아래 DROP INDEX 들 때문에 에러가 나므로 주석 처리해 둡니다.
---    기존 운영 DB에서 인덱스만 재정의하고 싶을 때만 주석을 풀어서 사용하세요.
--- --------------------------------------------------------
--- DROP INDEX IF EXISTS matches_date_idx ON matches;
--- DROP INDEX IF EXISTS matchstat_match_id_idx ON match_stat;
--- DROP INDEX IF EXISTS matches_stadium_date_idx ON matches;
--- DROP INDEX IF EXISTS matches_league_date_idx ON matches;
-
-
--- --------------------------------------------------------
 -- 테이블 삭제 (외래 키 제약조건을 피하기 위해 생성의 역순으로 삭제)
 -- --------------------------------------------------------
 DROP TABLE IF EXISTS comments;
