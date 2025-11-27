@@ -34,23 +34,43 @@ class CommentsModel {
 
     // 2. [작성] 댓글 쓰기
     public function createComment($match_id, $content, $session_id, $team_id = null, $player_id = null) {
-        $query = "INSERT INTO " . $this->table_name . " 
-                  (match_id, content, session_id, team_id, player_id) 
-                  VALUES (:match_id, :content, :session_id, :team_id, :player_id)";
-
-        $stmt = $this->conn->prepare($query);
-
-        // 데이터 바인딩
-        $stmt->bindParam(":match_id", $match_id);
-        $stmt->bindParam(":content", $content);
-        $stmt->bindParam(":session_id", $session_id);
-        $stmt->bindParam(":team_id", $team_id);
-        $stmt->bindParam(":player_id", $player_id);
-
-        if ($stmt->execute()) {
-            return true;
+        try {
+            // 트랜잭션 시작
+            $this->conn->beginTransaction();
+            
+            $query = "INSERT INTO " . $this->table_name . " 
+                      (match_id, content, session_id, team_id, player_id) 
+                      VALUES (:match_id, :content, :session_id, :team_id, :player_id)";
+    
+            $stmt = $this->conn->prepare($query);
+    
+            // 데이터 바인딩
+            $stmt->bindParam(":match_id", $match_id);
+            $stmt->bindParam(":content", $content);
+            $stmt->bindParam(":session_id", $session_id);
+            $stmt->bindParam(":team_id", $team_id);
+            $stmt->bindParam(":player_id", $player_id);
+    
+            $result = $stmt->execute();
+            
+            if ($result) {
+                // 성공 시 커밋
+                $this->conn->commit();
+                return true;
+            } else {
+                // 실패 시 롤백
+                $this->conn->rollBack();
+                return false;
+            }
+            
+        } catch (Exception $e) {
+            // 예외 발생 시 롤백
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollBack();
+            }
+            error_log("Comment creation failed: " . $e->getMessage());
+            return false;
         }
-        return false;
     }
 
     // 3. [검증] 특정 댓글의 세션 ID 가져오기 (수정/삭제 권한 확인용)
