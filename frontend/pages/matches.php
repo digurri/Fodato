@@ -79,7 +79,7 @@ $regions = $db->query("SELECT * FROM regions ORDER BY name")->fetchAll();
 include '../includes/header.php';
 ?>
 
-<h2>KBO 야구 경기 일정</h2>
+<h2 class="title-spacing">KBO 야구 경기 일정</h2>
 
 <div class="filter-section">
     <form method="GET" action="matches.php" class="filter-form">

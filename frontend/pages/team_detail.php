@@ -56,7 +56,7 @@ include '../includes/header.php';
 ?>
 
 <div class="team-detail">
-    <h2><?php echo htmlspecialchars($team['name']); ?></h2>
+    <h2 class="title-spacing"><?php echo htmlspecialchars($team['name']); ?></h2>
     
     <div class="team-info-grid">
         <div class="info-card">
@@ -104,7 +104,7 @@ include '../includes/header.php';
                     <tbody>
                         <?php foreach ($players as $player): ?>
                             <tr>
-                                <td><?php echo isset($player['uniform_number']) && $player['uniform_number'] > 0 ? '#' . $player['uniform_number'] : '-'; ?></td>
+                                <td><?php echo (!empty($player['uniform_number']) && $player['uniform_number'] > 0) ? 'No. ' . $player['uniform_number'] : '-'; ?></td>
                                 <td><strong><?php echo htmlspecialchars($player['name'] ?? ''); ?></strong></td>
                                 <td><span class="position-badge"><?php echo htmlspecialchars($player['position'] ?? '-'); ?></span></td>
                                 <td>

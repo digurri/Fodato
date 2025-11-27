@@ -1,3 +1,10 @@
+/* PretendardVariable 폰트 임포트 */
+@font-face {
+  font-family: 'PretendardVariable';
+  src: url('../font/PretendardVariable.woff2') format('woff2');
+  font-display: swap;
+}
+
 /* 전역 스타일 */
 * {
   margin: 0;
@@ -5,11 +12,19 @@
   box-sizing: border-box;
 }
 
+.title-spacing {
+  margin-bottom: 12px;
+}
+
 body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'PretendardVariable', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.6;
   color: #333;
   background-color: #f5f5f5;
+}
+
+.title-spacing {
+    margin-bottom: 12px;
 }
 
 .container {
@@ -20,10 +35,10 @@ body {
 
 /* 헤더 및 네비게이션 */
 header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #3d5a6c;
   color: white;
   padding: 1rem 0;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-bottom: 4px solid #2a3f52;
 }
 
 .navbar {
@@ -54,22 +69,22 @@ header {
   color: white;
   text-decoration: none;
   padding: 8px 16px;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+  border: 2px solid transparent;
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .nav-menu a:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(160, 82, 45, 0.25);
 }
 
 /* 히어로 섹션 */
 .hero-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #3d5a6c;
   color: white;
   padding: 40px 20px;
   text-align: center;
   margin-bottom: 30px;
-  border-radius: 10px;
+  border: 3px solid #2a3f52;
 }
 
 .hero-section h2 {
@@ -88,20 +103,19 @@ header {
 .stat-card {
   background: white;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 3px solid #333;
   text-align: center;
 }
 
 .stat-card h3 {
-  color: #667eea;
+  color: #a0522d;
   margin-bottom: 15px;
 }
 
 .stat-number {
   font-size: 2.5rem;
   font-weight: bold;
-  color: #764ba2;
+  color: #a0522d;
   display: block;
   margin: 10px 0;
 }
@@ -115,9 +129,8 @@ header {
 .filter-section {
   background: white;
   padding: 20px;
-  border-radius: 10px;
+  border: 3px solid #333;
   margin-bottom: 30px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .filter-form {
@@ -137,8 +150,7 @@ header {
 .filter-form input[type="date"],
 .filter-form input[type="month"] {
   padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 2px solid #333;
   font-size: 1rem;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   min-width: 180px;
@@ -148,27 +160,27 @@ header {
 .filter-form button,
 .btn-reset {
   padding: 8px 20px;
-  background-color: #667eea;
+  background-color: #a0522d;
   color: white;
-  border: none;
-  border-radius: 4px;
+  border: 3px solid #333;
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
   transition: background-color 0.3s;
+  font-weight: 600;
 }
 
 .filter-form button:hover,
 .btn-reset:hover {
-  background-color: #5568d3;
+  background-color: #8B4513;
 }
 
 .btn-reset {
-  background-color: #6c757d;
+  background-color: #3d5a6c;
 }
 
 .btn-reset:hover {
-  background-color: #5a6268;
+  background-color: #2a3f52;
 }
 
 /* 경기 카드 */
@@ -181,14 +193,12 @@ header {
 .match-card {
   background: white;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
+  border: 3px solid #333;
+  transition: background-color 0.3s;
 }
 
 .match-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  background-color: #f0f0f0;
 }
 
 .match-header {
@@ -198,9 +208,9 @@ header {
 }
 
 .match-time {
-  font-size: 1.5rem;
+  font-size: 2.0rem;
   font-weight: bold;
-  color: #667eea;
+  color: #a0522d;
   text-align: center;
   margin: 15px 0;
 }
@@ -223,7 +233,7 @@ header {
   margin-left: 10px;
   font-size: 1.3rem;
   font-weight: bold;
-  color: #764ba2;
+  color: #a0522d;
 }
 
 .vs {
@@ -247,11 +257,11 @@ header {
 /* 배지 */
 .sport-badge {
   padding: 4px 12px;
-  border-radius: 20px;
   font-size: 0.85rem;
   font-weight: bold;
   color: white;
   display: inline-block;
+  border: 2px solid #333;
 }
 
 .sport-badge.sport-축구 {
@@ -269,19 +279,19 @@ header {
 
 .region-badge {
   padding: 4px 12px;
-  border-radius: 20px;
   font-size: 0.85rem;
   background-color: #6c757d;
   color: white;
   display: inline-block;
+  border: 2px solid #333;
 }
 
 .status-badge {
   padding: 4px 12px;
-  border-radius: 20px;
   font-size: 0.85rem;
   color: white;
   display: inline-block;
+  border: 2px solid #333;
 }
 
 .status-badge.status-scheduled {
@@ -306,19 +316,20 @@ header {
 .btn-detail {
   display: inline-block;
   padding: 10px 20px;
-  background-color: #667eea;
+  background-color: #a0522d;
   color: white;
   text-decoration: none;
-  border-radius: 5px;
+  border: 3px solid #333;
   transition: background-color 0.3s;
-  border: none;
   cursor: pointer;
   font-size: 0.9rem;
+  font-weight: 600;
 }
+
 
 .btn:hover,
 .btn-detail:hover {
-  background-color: #5568d3;
+  background-color: #8B4513;
 }
 
 .btn-secondary {
@@ -340,16 +351,15 @@ header {
 /* 경기 목록 */
 .matches-list {
   background: white;
-  border-radius: 10px;
+  border: 3px solid #333;
   padding: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .date-divider {
   padding: 15px;
-  background-color: #667eea;
+  background-color: #3d5a6c;
   color: white;
-  border-radius: 5px;
+  border: 2px solid #2a3f52;
   margin: 20px 0 10px 0;
 }
 
@@ -373,7 +383,7 @@ header {
 .match-time-col .time {
   font-weight: bold;
   font-size: 1.1rem;
-  color: #667eea;
+  color: #a0522d;
 }
 
 .match-teams-col {
@@ -407,8 +417,7 @@ header {
 .match-detail {
   background: white;
   padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 3px solid #333;
 }
 
 .detail-header {
@@ -422,8 +431,8 @@ header {
   justify-content: space-around;
   align-items: center;
   padding: 40px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 10px;
+  background: #3d5a6c;
+  border: 3px solid #2a3f52;
   color: white;
   margin-bottom: 30px;
 }
@@ -457,14 +466,45 @@ header {
 .info-card {
   background: #f8f9fa;
   padding: 20px;
-  border-radius: 10px;
+  border: 3px solid #333;
+}
+
+/* 카드 내부 버튼 중앙 정렬 (브루탈리즘 레이아웃 보완) */
+/* 직접 자식으로 버튼이 있는 경우 가로 중앙 정렬 */
+.stat-card > .btn,
+.stat-card > .btn-detail,
+.match-card > .btn,
+.match-card > .btn-detail,
+.info-card > .btn,
+.info-card > .btn-detail,
+.stadium-card > .btn,
+.stadium-card > .btn-detail,
+.team-stat-card > .btn,
+.team-stat-card > .btn-detail,
+.player-card > .btn,
+.player-card > .btn-detail {
+  display: block;
+  margin: 16px auto 0 auto;
+}
+
+/* 카드 내부의 액션 버튼 그룹 중앙 정렬 */
+.stat-card .action-buttons,
+.match-card .action-buttons,
+.info-card .action-buttons,
+.stadium-card .action-buttons,
+.team-stat-card .action-buttons,
+.player-card .action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
 }
 
 .info-card h4 {
-  color: #667eea;
+  color: #a0522d;
   margin-bottom: 15px;
   padding-bottom: 10px;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #a0522d;
 }
 
 .info-card table {
@@ -491,10 +531,10 @@ header {
 }
 
 .team-stats-comparison h3 {
-  color: #667eea;
+  color: #a0522d;
   margin-bottom: 20px;
   padding-bottom: 10px;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #a0522d;
 }
 
 .team-stats-grid {
@@ -504,23 +544,22 @@ header {
 }
 
 .team-stat-card {
-  background: white;
+  background: #1a2a4e;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  border: 3px solid #333;
+  transition: background-color 0.3s;
 }
 
 .team-stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3);
 }
 
 .team-stat-card h4 {
-  color: #667eea;
+  color: #DC143C;
   margin-bottom: 15px;
   padding-bottom: 10px;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 2px solid #444;
   font-size: 1.2rem;
 }
 
@@ -535,23 +574,23 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  background: #f8f9fa;
-  border-radius: 6px;
+  background: #0f1929;
+  border: 2px solid #333;
   transition: background 0.2s;
 }
 
 .stat-item:hover {
-  background: #e9ecef;
+  background: rgba(220, 20, 60, 0.1);
 }
 
 .stat-label {
-  color: #666;
+  color: #b0b0b0;
   font-size: 0.9rem;
   font-weight: 500;
 }
 
 .stat-value {
-  color: #667eea;
+  color: #DC143C;
   font-size: 1.1rem;
   font-weight: bold;
 }
@@ -570,7 +609,7 @@ header {
 
 .channel-divider {
   padding: 10px 15px;
-  background-color: #667eea;
+  background-color: #3d5a6c;
   color: white;
   border-radius: 5px;
   margin: 20px 0 10px 0;
@@ -617,7 +656,7 @@ header {
 }
 
 .broadcast-link {
-  color: #667eea;
+  color: #a0522d;
   text-decoration: none;
 }
 
@@ -630,29 +669,30 @@ header {
   gap: 20px;
 }
 
+
+
 .stadium-card,
 .sport-card,
 .region-card {
   background: white;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s;
+  border: 3px solid #333;
+  transition: background-color 0.3s;
 }
 
 .stadium-card:hover,
 .sport-card:hover,
 .region-card:hover {
-  transform: translateY(-5px);
+  background-color: #f0f0f0;
 }
 
 .stadium-card h3,
 .sport-card h3,
 .region-card h3 {
-  color: #667eea;
+  color: #a0522d;
   margin-bottom: 15px;
   padding-bottom: 10px;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #a0522d;
 }
 
 .stadium-badges {
@@ -666,6 +706,7 @@ header {
 .region-stats {
   margin: 10px 0;
   color: #666;
+  text-align: center;
 }
 
 .sport-stats,
@@ -680,25 +721,24 @@ header {
   display: flex;
   justify-content: space-between;
   padding: 10px;
-  background: #f8f9fa;
+  background: #0f1929;
   border-radius: 5px;
 }
 
 .stat-label {
-  color: #666;
+  color: #b0b0b0;
 }
 
 .stat-value {
   font-weight: bold;
-  color: #667eea;
+  color: #DC143C;
 }
 
 /* 통계 테이블 */
 .statistics-container {
   background: white;
   padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 3px solid #333;
 }
 
 .stat-section {
@@ -706,10 +746,10 @@ header {
 }
 
 .stat-section h3 {
-  color: #667eea;
+  color: #a0522d;
   margin-bottom: 20px;
   padding-bottom: 10px;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #a0522d;
 }
 
 .table-responsive {
@@ -720,11 +760,13 @@ header {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
+  border: 2px solid #333;
 }
 
 .stat-table thead {
-  background-color: #667eea;
+  background-color: #3d5a6c;
   color: white;
+  border-bottom: 3px solid #2a3f52;
 }
 
 .stat-table th,
@@ -740,14 +782,14 @@ header {
 
 /* 통계 하이라이트 스타일 */
 .stat-highlight {
-  color: #667eea;
+  color: #a0522d;
   font-size: 1.1em;
 }
 
 .stat-type-badge {
   display: inline-block;
   padding: 4px 8px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3d5a6c 0%, #5a7a8c 100%);
   color: white;
   border-radius: 12px;
   font-size: 0.85em;
@@ -772,7 +814,7 @@ header {
 .rank-badge {
   padding: 4px 10px;
   border-radius: 20px;
-  background-color: #667eea;
+  background-color: #a0522d;
   color: white;
   font-weight: bold;
   font-size: 0.85rem;
@@ -863,8 +905,7 @@ table .no-data {
 .team-detail {
   background: white;
   padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 3px solid #333;
 }
 
 .team-info-grid {
@@ -889,14 +930,12 @@ table .no-data {
 .player-card {
   background: #f9f9f9;
   padding: 15px;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
-  transition: transform 0.3s, box-shadow 0.3s;
+  border: 2px solid #333;
+  transition: background-color 0.3s;
 }
 
 .player-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  background-color: #e9e9e9;
 }
 
 .player-header {
@@ -908,16 +947,17 @@ table .no-data {
 
 .back-number {
   font-weight: bold;
-  color: #667eea;
+  color: #a0522d;
   font-size: 1.1rem;
 }
 
 .position-badge {
-  background: #667eea;
+  background: #a0522d;
   color: white;
   padding: 4px 8px;
-  border-radius: 4px;
+  border: 2px solid #333;
   font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .player-card h4 {
@@ -941,8 +981,7 @@ table .no-data {
   overflow-x: auto;
   margin-top: 20px;
   background: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 3px solid #333;
 }
 
 .players-table {
@@ -952,8 +991,9 @@ table .no-data {
 }
 
 .players-table thead {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #3d5a6c;
   color: white;
+  border-bottom: 3px solid #2a3f52;
 }
 
 .players-table th {
@@ -962,26 +1002,24 @@ table .no-data {
   font-weight: 600;
   font-size: 0.9rem;
   letter-spacing: 0.5px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .players-table th:first-child {
-  border-radius: 10px 0 0 0;
+  border-left: none;
 }
 
 .players-table th:last-child {
-  border-radius: 0 10px 0 0;
+  border-right: none;
 }
 
 .players-table tbody tr {
   border-bottom: 1px solid #e9ecef;
-  transition: all 0.2s;
+  transition: background-color 0.2s;
 }
 
 .players-table tbody tr:hover {
-  background-color: #f8f9ff;
-  transform: scale(1.01);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+  background-color: #f0f0f0;
 }
 
 .players-table tbody tr:last-child {
@@ -994,23 +1032,23 @@ table .no-data {
 }
 
 .players-table td strong {
-  color: #667eea;
+  color: #a0522d;
   font-weight: 600;
 }
 
 .players-table td .position-badge {
   display: inline-block;
-  background: #667eea;
+  background: #a0522d;
   color: white;
   padding: 4px 10px;
-  border-radius: 12px;
+  border: 1px solid #333;
   font-size: 0.8rem;
   font-weight: 600;
 }
 
 .search-result {
   margin: 15px 0;
-  color: #667eea;
+  color: #a0522d;
   font-weight: 600;
   font-size: 1rem;
 }
@@ -1030,7 +1068,7 @@ table .no-data {
 
 .stat-value {
   font-size: 0.95rem;
-  color: #667eea;
+  color: #a0522d;
   font-weight: 700;
 }
 
@@ -1041,20 +1079,18 @@ table .no-data {
 
 /* 댓글 관련 스타일 */
 .comments-section {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  background: #f8f9fa;
   padding: 35px;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 3px solid #333;
   margin-top: 30px;
-  border: 1px solid #e9ecef;
 }
 
 .comments-section h4 {
-  color: #667eea;
+  color: #a0522d;
   margin-bottom: 25px;
   font-size: 1.6rem;
   font-weight: 700;
-  border-bottom: 3px solid #667eea;
+  border-bottom: 3px solid #a0522d;
   padding-bottom: 12px;
   display: flex;
   align-items: center;
@@ -1067,32 +1103,15 @@ table .no-data {
 }
 
 .comment-form {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  background: white;
   padding: 35px;
-  border-radius: 15px;
+  border: 3px solid #333;
   margin-bottom: 30px;
-  border: 2px solid #e9ecef;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   transition: all 0.3s;
-  position: relative;
-  overflow: hidden;
-}
-
-.comment-form::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 5px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-  border-radius: 15px 15px 0 0;
 }
 
 .comment-form:hover {
-  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.25);
-  transform: translateY(-3px);
-  border-color: #667eea;
+  border-color: #333;
 }
 
 .form-group {
@@ -1131,13 +1150,11 @@ table .no-data {
 .form-group select {
   width: 100% !important;
   padding: 16px 20px !important;
-  border: 2px solid #dee2e6 !important;
-  border-radius: 12px !important;
+  border: 2px solid #333 !important;
   font-size: 1rem !important;
   font-family: inherit !important;
-  transition: all 0.3s ease !important;
+  transition: border-color 0.3s ease !important;
   background: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
   color: #212529 !important;
   appearance: none !important;
   -webkit-appearance: none !important;
@@ -1146,7 +1163,7 @@ table .no-data {
 
 .form-group input[type="text"] {
   padding-left: 50px !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2.5'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E") !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2.5'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E") !important;
   background-repeat: no-repeat !important;
   background-position: 18px center !important;
   background-size: 20px !important;
@@ -1156,7 +1173,7 @@ table .no-data {
 
 .form-group textarea {
   padding: 16px 20px 16px 50px !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2.5'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3Cline x1='16' y1='13' x2='8' y2='13'/%3E%3Cline x1='16' y1='17' x2='8' y2='17'/%3E%3Cpolyline points='10 9 9 9 8 9'/%3E%3C/svg%3E") !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2.5'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3Cline x1='16' y1='13' x2='8' y2='13'/%3E%3Cline x1='16' y1='17' x2='8' y2='17'/%3E%3Cpolyline points='10 9 9 9 8 9'/%3E%3C/svg%3E") !important;
   background-repeat: no-repeat !important;
   background-position: 18px 18px !important;
   background-size: 20px !important;
@@ -1169,11 +1186,8 @@ table .no-data {
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 5px rgba(102, 126, 234, 0.15),
-    0 6px 20px rgba(102, 126, 234, 0.12);
-  transform: translateY(-3px);
-  background-color: #fafbff;
+  border-color: #333;
+  background-color: #f8f9fa;
 }
 
 .form-group input[type="text"]:not(:focus):hover,
@@ -1223,61 +1237,37 @@ table .no-data {
 .comment-item {
   background: white;
   padding: 20px;
-  border-radius: 12px;
+  border: 3px solid #333;
   margin-bottom: 18px;
-  border-left: 5px solid #667eea;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s;
-  position: relative;
-  overflow: hidden;
-}
-
-.comment-item::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 5px;
-  height: 100%;
-  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  transition: background-color 0.3s;
 }
 
 .comment-item:hover {
-  transform: translateX(5px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+  background-color: #f8f9fa;
 }
 
 /* 내 댓글 스타일 */
 .comment-item.my-comment {
-  background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%);
-  border-left: 5px solid #667eea;
-  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.15);
-}
-
-.comment-item.my-comment::before {
-  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-  width: 5px;
+  background: #f8f9fa;
+  border: 3px solid #a0522d;
 }
 
 .comment-item.my-comment:hover {
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.25);
+  background-color: #fff;
 }
 
 /* 다른 사용자 댓글 스타일 */
 .comment-item.other-comment {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border-left: 5px solid #dee2e6;
-  opacity: 0.95;
+  background: white;
+  border: 3px solid #333;
 }
 
 .comment-item.other-comment::before {
-  background: linear-gradient(180deg, #dee2e6 0%, #ced4da 100%);
-  width: 5px;
+  display: none;
 }
 
 .comment-item.other-comment:hover {
-  opacity: 1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: #f8f9fa;
 }
 
 .comment-author-info {
@@ -1287,14 +1277,14 @@ table .no-data {
 }
 
 .my-comment-badge {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3d5a6c 0%, #a0522d 100%);
   color: white;
   padding: 3px 8px;
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.3px;
-  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 4px rgba(160, 82, 45, 0.3);
 }
 
 .comment-header {
@@ -1309,7 +1299,7 @@ table .no-data {
 }
 
 .comment-nickname {
-  color: #667eea;
+  color: #a0522d;
   font-weight: 700;
   font-size: 1.05rem;
   display: flex;
@@ -1351,49 +1341,41 @@ table .no-data {
 }
 
 .btn-edit {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #a0522d;
   color: white;
-  border: none;
+  border: 2px solid #333;
   padding: 6px 14px;
-  border-radius: 6px;
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
-  transition: all 0.3s;
-  box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3);
+  transition: background-color 0.3s;
 }
 
 .btn-edit:hover {
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+  background: #8B4513;
 }
 
 .btn-edit:active {
-  transform: translateY(0);
+  background: #6b3410;
 }
 
 .btn-delete {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  background: #dc3545;
   color: white;
-  border: none;
+  border: 2px solid #333;
   padding: 6px 14px;
-  border-radius: 6px;
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
-  transition: all 0.3s;
-  box-shadow: 0 2px 5px rgba(220, 53, 69, 0.3);
+  transition: background-color 0.3s;
 }
 
 .btn-delete:hover {
-  background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
+  background: #c82333;
 }
 
 .btn-delete:active {
-  transform: translateY(0);
+  background: #bd2130;
 }
 
 .delete-comment-form {
@@ -1412,7 +1394,7 @@ table .no-data {
   padding: 20px;
   background: #f8f9fa;
   border-radius: 10px;
-  border: 2px solid #667eea;
+  border: 2px solid #a0522d;
 }
 
 .comment-edit-form .form-group {
@@ -1439,8 +1421,8 @@ table .no-data {
 .comment-edit-form .form-group input[type="text"]:focus,
 .comment-edit-form .form-group textarea:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #a0522d;
+  box-shadow: 0 0 0 3px rgba(160, 82, 45, 0.1);
 }
 
 .comment-edit-form .form-group textarea {
@@ -1455,94 +1437,57 @@ table .no-data {
 }
 
 .btn-save {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: #28a745;
   color: white;
-  border: none;
+  border: 2px solid #333;
   padding: 8px 20px;
-  border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 600;
-  transition: all 0.3s;
-  box-shadow: 0 2px 5px rgba(40, 167, 69, 0.3);
+  transition: background-color 0.3s;
 }
 
 .btn-save:hover {
-  background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4);
+  background: #20c997;
 }
 
 .btn-cancel {
   background: #6c757d;
   color: white;
-  border: none;
+  border: 2px solid #6b7072; /* 팔레트보다 채도를 낮춘 중성 톤 (검정 아님) */
   padding: 8px 20px;
-  border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 600;
-  transition: all 0.3s;
-  box-shadow: 0 2px 5px rgba(108, 117, 125, 0.3);
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .btn-cancel:hover {
   background: #5a6268;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(108, 117, 125, 0.4);
+  border-color: #5b6164;
 }
 
 .comment-form .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #a0522d;
   color: white;
-  border: none;
+  border: 2px solid #6b7072; /* 팔레트보다 채도를 낮춘 중성 톤 */
   padding: 14px 35px;
-  border-radius: 10px;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
+  transition: background-color 0.3s, border-color 0.3s;
   letter-spacing: 0.5px;
-  text-transform: uppercase;
-  font-size: 0.95rem;
-  position: relative;
-  overflow: hidden;
 }
 
-.comment-form .btn-primary::before {
-  content: "✍️";
-  margin-right: 8px;
-  font-size: 1rem;
-}
 
-.comment-form .btn-primary::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
 
 .comment-form .btn-primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-}
-
-.comment-form .btn-primary:hover::after {
-  width: 300px;
-  height: 300px;
+  background: #8B4513;
+  border-color: #5b6164;
 }
 
 .comment-form .btn-primary:active {
-  transform: translateY(-1px);
-  box-shadow: 0 3px 12px rgba(102, 126, 234, 0.4);
+  background: #6b3410;
 }
 
 /* 댓글이 없을 때 스타일 */
@@ -1561,7 +1506,7 @@ table .no-data {
   appearance: none !important;
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a0522d' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
   background-repeat: no-repeat !important;
   background-position: right 16px center !important;
   padding-right: 40px !important;
@@ -1577,7 +1522,7 @@ table .no-data {
 
 .form-group select optgroup {
   font-weight: bold !important;
-  color: #667eea !important;
+  color: #a0522d !important;
   padding: 8px !important;
   background: #f8f9fa !important;
 }
@@ -1594,9 +1539,9 @@ table .no-data {
 }
 
 .team-badge {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3d5a6c 0%, #a0522d 100%);
   color: white;
-  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 6px rgba(160, 82, 45, 0.3);
 }
 
 .player-badge {

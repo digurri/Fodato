@@ -34,7 +34,7 @@ $matches = $db->query($query)->fetchAll();
 include '../includes/header.php';
 ?>
 
-<h2>KBO 야구 경기 일정</h2>
+<h2 class="title-spacing">KBO 야구 경기 일정</h2>
     
     <div class="matches-section">
         <?php if (empty($matches)): ?>

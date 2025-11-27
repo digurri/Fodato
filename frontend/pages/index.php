@@ -40,13 +40,13 @@ include '../includes/header.php';
 ?>
 
 <div class="hero-section">
-    <h2>오늘의 KBO 야구 경기</h2>
+    <h2>오늘의 KBO 매치업</h2>
     <p><?php echo date('Y년 m월 d일'); ?> 경기 일정</p>
 </div>
 
 <div class="stats-grid">
     <div class="stat-card">
-        <h3>오늘의 경기</h3>
+        <h3 class="title-spacing">오늘의 경기</h3>
         <p class="stat-number"><?php echo count($todayMatches); ?></p>
         <p class="stat-label">경기</p>
     </div>
@@ -84,7 +84,7 @@ include '../includes/header.php';
 
 
 <div class="filter-section">
-    <h3>필터</h3>
+    <h3 class="title-spacing">필터</h3>
     <form method="GET" action="matches.php" class="filter-form">
         <select name="region">
             <option value="">전체 지역</option>
@@ -101,7 +101,7 @@ include '../includes/header.php';
 </div>
 
 <div class="matches-section">
-    <h3>오늘의 경기 일정</h3>
+    <h3 class="title-spacing">오늘의 경기 일정</h3>
     <?php if (empty($todayMatches)): ?>
         <p class="no-data">데이터 없음</p>
     <?php else: ?>

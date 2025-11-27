@@ -15,7 +15,7 @@ $path = (strpos($_SERVER['PHP_SELF'], '/pages/') !== false) ? '../' : '';
         <nav class="navbar">
             <div class="container">
                 <h1 class="logo">
-                    <a href="<?php echo $path; ?>pages/index.php">KBO 야구 일정</a>
+                    <a href="<?php echo $path; ?>pages/index.php">KBO SPORTS BOARD</a>
                 </h1>
                 <ul class="nav-menu">
                     <li><a href="<?php echo $path; ?>pages/index.php">홈</a></li>

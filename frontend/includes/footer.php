@@ -1,7 +1,7 @@
     </main>
     <footer>
         <div class="container">
-            <p>&copy;Fodato</p>
+            <p>&copy; 2025 Fodato KBO MATCH Data Analysis· Team 5 </p>
         </div>
     </footer>
 </body>

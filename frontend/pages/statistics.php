@@ -93,7 +93,7 @@ $positionPerformance = $db->query($sql)->fetchAll();
 include '../includes/header.php';
 ?>
 
-<h2>KBO 야구 통계 분석</h2>
+<h2 class="title-spacing">KBO 야구 통계 분석</h2>
 
 <div class="statistics-container">
     
