@@ -1,3 +1,5 @@
+// 2176209 Yang Sieun
+
 <?php
 // 경로 계산
 $path = (strpos($_SERVER['PHP_SELF'], '/pages/') !== false) ? '../' : '';
