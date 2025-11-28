@@ -96,23 +96,23 @@ if ($stadiumId) {
                 $status = getMatchStatus($recentMatch['date'], $recentMatch['time']); ?>
                 <div class="matches-list">
                     <div class="match-item">
-                        <div class="match-date" style="display: flex; flex-direction: column; gap: 8px; min-width: 0;">
-                            <div style="font-size: 0.9rem;"><?php echo date('Y-m-d H:i', strtotime($recentMatch['date'].' '.$recentMatch['time'])); ?></div>
+                        <div class="match-date">
+                            <div style="font-size: 0.9rem"><?php echo date('Y-m-d H:i', strtotime($recentMatch['date'].' '.$recentMatch['time'])); ?></div>
                             <span class="status-badge <?php echo $status['class']; ?>" style="font-size: 0.75rem; padding: 3px 8px; display: inline-block; width: fit-content;">
                                 <?php echo htmlspecialchars($status['label']); ?>
                             </span>
                         </div>
-                        <div class="match-teams" style="font-weight: 500; font-size: 1rem; color: #333; min-width: 0;">
+                        <div class="match-teams">
                             <?php echo htmlspecialchars($teams[0] ?? ''); ?> vs <?php echo htmlspecialchars($teams[1] ?? ''); ?>
                         </div>
-                        <div class="attendance" style="color: #28a745; font-weight: 500; font-size: 0.9rem; min-width: 0;">
+                        <div class="attendance">
                             관중: <?php echo number_format($recentMatch['spectators'] ?? 0); ?>명
                         </div>
-                        <div class="match-action-col" style="display: flex; justify-content: flex-end; align-items: center; min-width: 120px;">
+                        <div class="match-action-col">
                             <?php if ($matchId): ?>
                                 <a href="match_detail.php?id=<?php echo $matchId; ?>" class="btn-detail" style="white-space: nowrap; text-align: center; display: inline-block;">상세보기</a>
                             <?php else: ?>
-                                <span class="btn-detail" style="opacity: 0.5; cursor: not-allowed; pointer-events: none; white-space: nowrap; text-align: center; display: inline-block;">상세보기</span>
+                                <span class="btn-detail">상세보기</span>
                             <?php endif; ?>
                         </div>
                     </div>
