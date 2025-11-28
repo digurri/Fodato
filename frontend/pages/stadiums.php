@@ -68,8 +68,8 @@ if ($stadiumId) {
     include '../includes/header.php';
     ?>
     
-    <div class="stadium-detail" style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); margin-bottom: 30px;">
-        <h2 style="color: #667eea; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 3px solid #667eea;"><?php echo htmlspecialchars($stadiumData['name']); ?></h2>
+    <div class="stadium-detail">
+        <h2 class="title-spacing"><?php echo htmlspecialchars($stadiumData['name']); ?></h2>
         
         <div class="stadium-info-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px;">
             <div class="info-card">
@@ -90,8 +90,8 @@ if ($stadiumId) {
             </div>
         </div>
 
-        <div class="stadium-matches" style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); margin-bottom: 30px;">
-            <h4 style="color: #667eea; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #667eea; font-size: 1.3rem;">최근 경기</h4>
+        <div class="stadium-matches">
+            <h2 class="title-spacing">최근 경기</h2>
             <?php if ($recentMatch): 
                 $status = getMatchStatus($recentMatch['date'], $recentMatch['time']); ?>
                 <div class="matches-list">
