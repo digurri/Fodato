@@ -19,6 +19,19 @@ class StatisticsModel {
     
         // 1) 경기장별 통계 - 경기장별 순위, 총 경기 수, 최대/평균/총 관중
         $sql_stadiums = "
+            WITH base AS (
+                SELECT DISTINCT
+                    s.id AS stadium_id,
+                    s.name AS stadium_name,
+                    r.name AS stadium_region,
+                    m.id AS match_id,
+                    ms.attendance
+                FROM stadiums s
+                JOIN regions r ON s.region_id = r.id
+                LEFT JOIN matches m ON m.stadium_id = s.id
+                LEFT JOIN match_stat ms ON ms.match_id = m.id
+            )
+        
             SELECT
                 RANK() OVER (ORDER BY total_matches DESC) AS stadium_ranking,
                 stadium_name,
@@ -27,25 +40,25 @@ class StatisticsModel {
                 max_spectators,
                 avg_spectators,
                 total_spectators
-                FROM (
-                    SELECT
-                        s.name AS stadium_name,
-                        r.name AS stadium_region,
-                        COUNT(m.id) AS total_matches,
-                        IFNULL(MAX(ms.attendance), 0) AS max_spectators,
-                        IFNULL(ROUND(AVG(ms.attendance)), 0) AS avg_spectators,
-                        IFNULL(SUM(ms.attendance), 0) AS total_spectators
-                    FROM stadiums s
-                    JOIN regions r ON s.region_id = r.id
-                    LEFT JOIN matches m ON m.stadium_id = s.id
-                    LEFT JOIN match_stat ms ON m.id = ms.match_id
-                    GROUP BY s.id, s.name, r.name
-                    ORDER BY total_matches DESC
-                ) AS stats
-                ORDER BY total_matches DESC;";
+            FROM (
+                SELECT
+                    stadium_name,
+                    stadium_region,
+                    COUNT(match_id) OVER (PARTITION BY stadium_id) AS total_matches,
+                    MAX(attendance) OVER (PARTITION BY stadium_id) AS max_spectators,
+                    ROUND(AVG(attendance) OVER (PARTITION BY stadium_id)) AS avg_spectators,
+                    SUM(attendance) OVER (PARTITION BY stadium_id) AS total_spectators
+                FROM base
+            ) AS stats
+            GROUP BY
+                stadium_name, stadium_region,
+                total_matches, max_spectators, avg_spectators, total_spectators
+            ORDER BY
+                total_matches DESC;
+            ";
     
         $data['stadiums'] = $this->conn->query($sql_stadiums)->fetchAll(PDO::FETCH_ASSOC);
-
+        
         // 2) 시즌별 통계 - 시즌별 경기수, 경기장 수, 팀 수, 관중 통계
         $sql_leagues = "
             SELECT
