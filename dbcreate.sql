@@ -163,6 +163,7 @@ CREATE TABLE comments (
   FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE SET NULL
 );
 
+-- // written by 2303050 Eunseo Park
 -- --------------------------------------------------------
 -- 5. 인덱스 생성
 -- --------------------------------------------------------

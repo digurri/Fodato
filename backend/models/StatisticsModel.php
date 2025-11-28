@@ -1,4 +1,5 @@
 <?php
+// written by 2303050 Eunseo Park
 require_once __DIR__ . '/../config/db.php';
 
 class StatisticsModel {
@@ -122,7 +123,7 @@ class StatisticsModel {
     
         $data['matches'] = $this->conn->query($sql_matches)->fetchAll(PDO::FETCH_ASSOC);
     
-        // 6) 팀별 타율 통계 - 팀명, 지역, 타자수, 타율 및 랭킹 (윈도우 함수 활용)
+        // 6) 팀별 타율 통계 - 팀명, 지역, 타자수, 타율 및 랭킹
         $sql_teams_ba = "
             SELECT
                 ROW_NUMBER() OVER (ORDER BY team_ba DESC) AS ba_ranking,

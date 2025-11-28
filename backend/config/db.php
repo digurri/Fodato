@@ -1,4 +1,5 @@
 <?php
+// written by 2303050 Eunseo Park
 class Database {
     private $host = "localhost";
     private $db_name = "team05_db";

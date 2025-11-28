@@ -1,4 +1,5 @@
 <?php
+// written by 2303050 Eunseo Park
 require_once '../../models/StadiumsModel.php';
 header('Content-Type: application/json; charset=utf-8');
 

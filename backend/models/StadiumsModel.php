@@ -1,4 +1,5 @@
 <?php
+// written by 2303050 Eunseo Park
 require_once __DIR__ . '/../config/db.php';
 
 class StadiumsModel {

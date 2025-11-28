@@ -32,6 +32,7 @@ class CommentsModel {
         return $stmt;
     }
 
+    // written by 2303050 Eunseo Park (2. 댓글 쓰기)
     // 2. [작성] 댓글 쓰기
     public function createComment($match_id, $content, $session_id, $team_id = null, $player_id = null) {
         try {
