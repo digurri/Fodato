@@ -1,4 +1,5 @@
 <?php
+// written by 2040042 Sarang Kim
 // backend/api/matches/analytics.php
 
 header("Access-Control-Allow-Origin: *");
@@ -24,7 +25,7 @@ try {
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             extract($row);
             $item = array(
-                "region_name" => $region_name, // '서울', '부산', ..., 'Total'
+                "region_name" => $region_name,
                 "match_count" => (int)$match_count
             );
             array_push($stats_arr["data"], $item);

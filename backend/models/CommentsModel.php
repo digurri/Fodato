@@ -1,4 +1,5 @@
 <?php
+// written by 2040042 Sarang Kim
 // backend/models/CommentsModel.php
 
 class CommentsModel {
@@ -74,6 +75,7 @@ class CommentsModel {
         }
     }
 
+    // written by 2040042 Sarang Kim
     // 3. [검증] 특정 댓글의 세션 ID 가져오기 (수정/삭제 권한 확인용)
     public function getSessionIdByCommentId($comment_id) {
         $query = "SELECT session_id FROM " . $this->table_name . " WHERE id = :comment_id";
@@ -89,6 +91,7 @@ class CommentsModel {
         return null; // 댓글이 없으면 null 반환
     }
 
+    // written by 2040042 Sarang Kim
     // 4. [수정] 댓글 내용 업데이트
     public function updateComment($comment_id, $content) {
         $query = "UPDATE " . $this->table_name . " 
@@ -105,6 +108,7 @@ class CommentsModel {
         return false;
     }
 
+    // written by 2040042 Sarang Kim
     // 5. [삭제] 댓글 지우기
     public function deleteComment($comment_id) {
         $query = "DELETE FROM " . $this->table_name . " WHERE id = :comment_id";

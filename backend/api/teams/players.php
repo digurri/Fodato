@@ -1,4 +1,5 @@
 <?php
+// written by 2040042 Sarang Kim
 // backend/api/teams/players.php
 
 header("Access-Control-Allow-Origin: *");
@@ -34,12 +35,12 @@ try {
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             extract($row);
 
-            // --- [핵심] 포지션별 스탯 계산 로직 ---
+            // 포지션별 스탯 계산 로직
             $stat_label = "";
             $stat_value = "";
 
             if ($position === '투수') {
-                // 투수: 평균자책점 (ERA) 계산
+                // 투수: 평균자책점 계산
                 $stat_label = "평균자책점";
                 if ($total_ip > 0) {
                     $era = ($total_er * 9) / $total_ip;
@@ -48,7 +49,7 @@ try {
                     $stat_value = "0.00";
                 }
             } else {
-                // 타자(포수, 내야수, 외야수): 타율 (AVG) 계산
+                // 타자(포수, 내야수, 외야수): 타율 계산
                 $stat_label = "타율";
                 if ($total_ab > 0) {
                     $avg = $total_h / $total_ab;
@@ -58,14 +59,13 @@ try {
                 }
             }
 
-            // 데이터 조립
             $player_item = array(
                 "player_id" => (int)$player_id,
                 "uniform_number" => (int)$uniform_number,
                 "name" => $name,
                 "position" => $position,
                 "birth_date" => $birth_date,
-                "physical_info" => "{$height_cm}cm / {$weight_kg}kg", // 문자열 합치기
+                "physical_info" => "{$height_cm}cm / {$weight_kg}kg",
                 "stat" => array(
                     "label" => $stat_label,
                     "value" => $stat_value

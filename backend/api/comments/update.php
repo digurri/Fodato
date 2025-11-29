@@ -1,4 +1,5 @@
 <?php
+// written by 2040042 Sarang Kim
 // backend/api/comments/update.php
 
 header("Access-Control-Allow-Origin: *");
@@ -25,7 +26,7 @@ try {
         // 2. DB에 저장된 그 댓글의 세션 ID 가져오기
         $db_session_id = $commentsModel->getSessionIdByCommentId($data->comment_id);
 
-        // 3. [검증] 두 ID가 똑같은지 비교
+        // 3. 두 ID가 똑같은지 비교
         if ($db_session_id === $current_session_id) {
             // 일치하면 수정 진행
             if ($commentsModel->updateComment($data->comment_id, $data->content)) {
