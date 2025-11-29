@@ -108,7 +108,7 @@ class StatisticsModel {
         // 5) 최고 관중 수 경기 TOP10 - 경기 일자, 경기장, 팀명, 관중수 및 랭킹 (윈도우 함수 활용)
         $sql_matches = "
             SELECT
-                ROW_NUMBER() OVER (ORDER BY m.date ASC) AS match_ranking,
+                ROW_NUMBER() OVER (ORDER BY ms.attendance DESC) AS match_ranking,
                 m.date AS match_date,
                 s.name AS match_stadium,
                 CONCAT(ht.name, ' vs ', at.name) AS match_teams,
@@ -118,7 +118,7 @@ class StatisticsModel {
             JOIN teams ht ON m.home_team_id=ht.id
             JOIN teams at ON m.away_team_id=at.id
             LEFT JOIN match_stat ms ON m.id=ms.match_id
-            ORDER BY m.date ASC
+            ORDER BY ms.attendance DESC
             LIMIT 10";
     
         $data['matches'] = $this->conn->query($sql_matches)->fetchAll(PDO::FETCH_ASSOC);
