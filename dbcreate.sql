@@ -3,12 +3,12 @@
 -- KBO 야구 일정 웹사이트 (dbcreate.sql)
 -- --------------------------------------------------------
 
-CREATE USER IF NOT EXISTS'team05_db'@'localhost' IDENTIFIED BY 'team05_db';
-GRANT ALL PRIVILEGES ON team05_db.* TO 'team05_db'@'localhost';
+CREATE USER IF NOT EXISTS'team05'@'localhost' IDENTIFIED BY 'team05';
+GRANT ALL PRIVILEGES ON team05.* TO 'team05'@'localhost';
 FLUSH PRIVILEGES;
 
-CREATE DATABASE IF NOT EXISTS team05_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE team05_db;
+CREATE DATABASE IF NOT EXISTS team05 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE team05;
 
 -- --------------------------------------------------------
 -- 테이블 삭제 (외래 키 제약조건을 피하기 위해 생성의 역순으로 삭제)
