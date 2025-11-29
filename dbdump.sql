@@ -1,3 +1,5 @@
+-- written by 2303050 Eunseo Park
+
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
@@ -18,7 +20,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- 데이터베이스: `team05_db`
+-- 데이터베이스: `team05`
 --
 
 -- --------------------------------------------------------

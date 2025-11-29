@@ -1,4 +1,5 @@
 <?php
+// written by 2040042 Sarang Kim
 // backend/api/comments/delete.php
 
 header("Access-Control-Allow-Origin: *");
@@ -23,7 +24,7 @@ try {
         $current_session_id = session_id();
         $db_session_id = $commentsModel->getSessionIdByCommentId($data->comment_id);
 
-        // 2. [검증] 비교
+        // 2. 비교
         if ($db_session_id === $current_session_id) {
             // 일치하면 삭제 진행
             if ($commentsModel->deleteComment($data->comment_id)) {

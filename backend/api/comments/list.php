@@ -1,4 +1,5 @@
 <?php
+// written by 2040042 Sarang Kim
 // backend/api/comments/list.php
 
 header("Access-Control-Allow-Origin: *");
@@ -50,7 +51,7 @@ try {
 
     } else {
         // 댓글이 하나도 없을 때 (빈 배열 반환)
-        http_response_code(200); // 에러는 아니므로 200 OK
+        http_response_code(200);
         echo json_encode(
             array("message" => "등록된 댓글이 없습니다.", "data" => [])
         );

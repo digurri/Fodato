@@ -1,3 +1,4 @@
+<!-- written by 2171090 SeungHyeon Lee -->
 <!-- 종목별 경기 일정 페이지 -->
 
 <?php 

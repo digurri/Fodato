@@ -1,9 +1,10 @@
 <?php
+// written by 2303050 Eunseo Park
 class Database {
     private $host = "localhost";
-    private $db_name = "team05_db";
-    private $username = "team05_db";
-    private $password = "team05_db";
+    private $db_name = "team05";
+    private $username = "team05";
+    private $password = "team05";
     public $conn;
 
     public function getConnection(){

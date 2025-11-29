@@ -1,9 +1,11 @@
+-- // written by 2040042 Sarang Kim
+
 -- --------------------------------------------------------
 -- KBO 야구 일정 웹사이트 데이터 삽입
 -- --------------------------------------------------------
 SET FOREIGN_KEY_CHECKS = 0;
 SET NAMES utf8mb4;
-USE team05_db;
+USE team05;
 
 -- 1. leagues 테이블 삽입
 INSERT INTO leagues (id, name, year) VALUES

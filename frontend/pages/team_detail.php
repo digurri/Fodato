@@ -1,3 +1,4 @@
+<!-- written by 2171090 SeungHyeon Lee -->
 <!-- 팀 상세 페이지 -->
  
 <?php

@@ -1,4 +1,5 @@
 <?php
+// written by 2040042 Sarang Kim
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 
@@ -10,11 +11,9 @@ try {
     $db = $database->getConnection();
     $matchesModel = new MatchesModel($db);
 
-    // 파라미터 받기
     $date = isset($_GET['date']) ? $_GET['date'] : null;
     $region_id = isset($_GET['region_id']) ? $_GET['region_id'] : null;
 
-    // 날짜 형식 유효성 검사 (간단하게)
     if ($date && !preg_match("/^\d{4}-\d{2}-\d{2}$/", $date)) {
         http_response_code(400);
         echo json_encode(array("message" => "잘못된 요청입니다. (날짜 형식 오류)"));
@@ -36,7 +35,7 @@ try {
                 "date" => $date,
                 "time" => substr($time, 0, 5),
                 "status" => $status,
-                "home_team" => $home_team_name, // 명세서 키 확인 (home_team)
+                "home_team" => $home_team_name,
                 "home_score" => (int)$home_score,
                 "away_team" => $away_team_name,
                 "away_score" => (int)$away_score,
@@ -52,7 +51,6 @@ try {
 
 } catch (Exception $e) {
     http_response_code(500);
-    // 에러 메시지를 그대로 화면에 출력하게 변경!
     echo json_encode(array("message" => "에러 발생: " . $e->getMessage()));
 }
 ?>

@@ -1,4 +1,5 @@
 <?php
+// written by 2040042 Sarang Kim
 // backend/api/teams/detail.php
 
 header("Access-Control-Allow-Origin: *");
