@@ -1,4 +1,4 @@
-<!-- LeeSeungHyeon -->
+<!-- written by 2171090 SeungHyeon Lee -->
 <?php
 require_once '../config/config.php';
 require_once '../config/database.php';

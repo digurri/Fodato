@@ -1,4 +1,4 @@
-<!-- LeeSeungHyeon -->
+<!-- written by 2171090 SeungHyeon Lee -->
 <!-- 경기 통계 페이지 -->
 
 <?php

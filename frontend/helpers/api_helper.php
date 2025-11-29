@@ -1,4 +1,4 @@
-<!-- LeeSeungHyeon -->
+<!-- written by 2171090 SeungHyeon Lee -->
 <?php
 /**
  * API 기본 URL을 반환

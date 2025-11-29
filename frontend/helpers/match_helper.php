@@ -1,4 +1,4 @@
-<!-- LeeSeungHyeon -->
+<!-- written by 2171090 SeungHyeon Lee -->
 <?php
 /**
  * 현재 날짜를 기준으로 경기 상태를 계산
