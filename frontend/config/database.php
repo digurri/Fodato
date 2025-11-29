@@ -1,3 +1,4 @@
+<!-- written by 2171090 SeungHyeon Lee -->
 <?php
 require_once 'config.php';
 

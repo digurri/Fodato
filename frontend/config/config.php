@@ -1,3 +1,4 @@
+<!-- written by 2171090 SeungHyeon Lee -->
 <?php
 
 // 설정 관련 모음
